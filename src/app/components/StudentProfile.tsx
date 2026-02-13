@@ -1,25 +1,62 @@
-import { User, Award, BookOpen, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
-
-interface Student {
-  id: string;
-  name: string;
-  major: string;
-  minor: string;
-  gpa: number;
-  completedCredits: number;
-  totalCredits: number;
-  expectedGraduation: string;
-  advisorName: string;
-  currentSemester: string;
-}
+import { User, Award, BookOpen, Calendar, AlertCircle, CheckCircle, Pencil } from 'lucide-react';
+import { ComprehensiveStudentProfile, createStudentProfile } from '@/lib/student-context';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Label } from '@/app/components/ui/label';
+import { toast } from 'sonner';
 
 interface StudentProfileProps {
-  student: Student;
+  student: ComprehensiveStudentProfile;
 }
 
 export function StudentProfile({ student }: StudentProfileProps) {
   const progressPercentage = (student.completedCredits / student.totalCredits) * 100;
   const gpaColor = student.gpa >= 3.5 ? 'text-green-600' : student.gpa >= 3.0 ? 'text-yellow-600' : 'text-orange-600';
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: student.name,
+    student_id: student.student_id,
+    major: student.major,
+    minor: student.minor,
+    gpa: student.gpa,
+    expected_graduation_date: student.expected_graduation_date
+  });
+
+  const handleSave = async () => {
+    try {
+      const result = await createStudentProfile({
+        id: student.id,
+        student_id: editForm.student_id,
+        name: editForm.name,
+        major: editForm.major,
+        minor: editForm.minor,
+        student_type: student.student_type,
+        program_name: editForm.major,
+        housing_type: student.housing_type,
+        meal_plan: student.meal_plan,
+        dorm_room_type: student.dorm_room_type,
+        expected_graduation_date: editForm.expected_graduation_date,
+        gpa: Number(editForm.gpa)
+      });
+
+      if (result.success) {
+        toast.success("Profile updated! Refreshing...");
+        setIsEditing(false);
+        // Brief delay so user can see the toast and console logs are preserved
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        const errMsg = result.error?.message || JSON.stringify(result.error);
+        toast.error(`Failed to update profile: ${errMsg}`);
+        console.error('Profile update failed:', result.error);
+      }
+    } catch (e: any) {
+      toast.error(`Failed to update profile: ${e?.message || e}`);
+      console.error('Unexpected error:', e);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -29,9 +66,60 @@ export function StudentProfile({ student }: StudentProfileProps) {
           {student.name.split(' ').map(n => n[0]).join('')}
         </div>
         <div className="flex-1">
-          <h2 className="text-xl text-gray-900">{student.name}</h2>
-          <p className="text-sm text-gray-600">ID: {student.id}</p>
-          <p className="text-sm text-gray-600">{student.currentSemester}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-xl text-gray-900">{student.name}</h2>
+              <p className="text-sm text-gray-600">ID: {student.student_id}</p>
+              <p className="text-sm text-gray-600">{student.currentSemester}</p>
+            </div>
+            <Dialog open={isEditing} onOpenChange={setIsEditing}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setEditForm({
+                  name: student.name,
+                  student_id: student.student_id,
+                  major: student.major,
+                  minor: student.minor,
+                  gpa: student.gpa,
+                  expected_graduation_date: student.expected_graduation_date
+                })}>
+                  <Pencil className="h-4 w-4 text-gray-500" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Profile</DialogTitle>
+                  <DialogDescription>Update your academic information below.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="student_id">Student ID</Label>
+                    <Input id="student_id" value={editForm.student_id} onChange={(e) => setEditForm({ ...editForm, student_id: e.target.value })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="major">Major</Label>
+                    <Input id="major" value={editForm.major} onChange={(e) => setEditForm({ ...editForm, major: e.target.value })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="minor">Minor</Label>
+                    <Input id="minor" value={editForm.minor} onChange={(e) => setEditForm({ ...editForm, minor: e.target.value })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="gpa">GPA</Label>
+                    <Input id="gpa" type="number" step="0.01" value={editForm.gpa} onChange={(e) => setEditForm({ ...editForm, gpa: parseFloat(e.target.value) })} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="grad_date">Expected Graduation</Label>
+                    <Input id="grad_date" type="month" value={editForm.expected_graduation_date} onChange={(e) => setEditForm({ ...editForm, expected_graduation_date: e.target.value })} />
+                  </div>
+                  <Button onClick={handleSave}>Save Changes</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
 
@@ -62,7 +150,7 @@ export function StudentProfile({ student }: StudentProfileProps) {
           <Calendar className="w-5 h-5 text-[#003366]" />
           <div>
             <p className="text-gray-600">Expected Graduation</p>
-            <p className="text-gray-900">{student.expectedGraduation}</p>
+            <p className="text-gray-900">{student.expected_graduation_date}</p>
           </div>
         </div>
       </div>
