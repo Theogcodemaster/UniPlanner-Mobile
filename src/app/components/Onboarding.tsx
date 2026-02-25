@@ -6,7 +6,7 @@ import { Label } from '@/app/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, Check, Upload, FileText, LogOut, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Loader2, ArrowRight, Check, Upload, FileText, LogOut, AlertCircle, ShieldCheck, GraduationCap, Sparkles } from 'lucide-react';
 import { createStudentProfile } from '@/lib/student-context';
 import { extractPdfText, parseGradesToJSON, extractStudentInfo } from '@/lib/ai-agent';
 
@@ -54,7 +54,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        // Force reload to clear state and redirect to login
         window.location.reload();
     };
 
@@ -63,9 +62,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             toast.error('Please enter your full name.');
             return false;
         }
-        // 10-digit number validation
         if (!/^\d{10}$/.test(formData.studentId)) {
-            toast.error('Student ID must be exactly 10 digits (numbers only).');
+            toast.error('Student ID must be exactly 10 digits.');
             return false;
         }
         return true;
@@ -73,12 +71,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     const verifyTranscript = async () => {
         if (!files.transcript) return;
-
         setVerifying(true);
         try {
             const text = await extractPdfText(files.transcript);
-
-            // 1. Extract Student Info
             const studentInfo = await extractStudentInfo(text);
             if (studentInfo) {
                 setFormData(prev => ({
@@ -89,33 +84,22 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     major: studentInfo.major || prev.major,
                     gpa: studentInfo.gpa || prev.gpa
                 }));
-                if (studentInfo.gpa) {
-                    toast.success(`Extracted GPA: ${studentInfo.gpa}`);
-                }
             }
-
             const parsedData = await parseGradesToJSON(text);
-
-            // Simple verification logic: Check if transcript has any data
-            // In a real scenario, we'd check against formData.major if the transcripts contain major info
-
             if (parsedData && parsedData.length > 0) {
                 setVerificationResult({
                     match: true,
-                    message: `Transcript verified. Found ${parsedData.length} courses.`
+                    message: `Verified! Found ${parsedData.length} records.`
                 });
             } else {
                 setVerificationResult({
                     match: false,
-                    message: "We couldn't extract clear course data. Please ensure it's a valid transcript."
+                    message: "Manual review required."
                 });
             }
         } catch (error) {
             console.error(error);
-            setVerificationResult({
-                match: false,
-                message: "Error analyzing transcript. Proceed with caution."
-            });
+            setVerificationResult({ match: false, message: "Verification failed." });
         } finally {
             setVerifying(false);
         }
@@ -123,27 +107,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     const nextStep = async () => {
         if (step === 'type-selection') {
-            if (!formData.studentType) {
-                toast.error('Please select your student type.');
-                return;
-            }
+            if (!formData.studentType) { toast.error('Select type.'); return; }
             setStep('basic');
         } else if (step === 'basic') {
-            if (validateBasicInfo()) {
-                setStep('academic');
-            }
+            if (validateBasicInfo()) setStep('academic');
         } else if (step === 'academic') {
-            if (!formData.major || !formData.graduationDate) {
-                toast.error('Please fill in all academic fields.');
+            if (!formData.major || !formData.graduationDate || !files.bulletin) {
+                toast.error('Fill required fields and upload bulletin.');
                 return;
             }
-            if (!files.bulletin) {
-                toast.error('Please upload your Programme Bulletin.');
-                return;
-            }
-
-
-
             if (files.transcript) {
                 await verifyTranscript();
                 setStep('verification');
@@ -159,220 +131,214 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         setLoading(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('No user found');
+            if (!user) throw new Error('No user');
 
-            const profileData = {
+            const result = await createStudentProfile({
                 id: user.id,
                 student_id: formData.studentId,
                 name: `${formData.firstName} ${formData.lastName}`,
                 major: formData.major,
-                student_type: formData.studentType as 'international' | 'local',
+                student_type: formData.studentType,
                 housing_type: formData.housingType as any,
                 meal_plan: formData.mealPlan as any,
                 dorm_room_type: formData.dormRoomType as any,
                 program_name: formData.major,
                 expected_graduation_date: formData.graduationDate,
                 gpa: formData.gpa
-            };
-
-            const result = await createStudentProfile(profileData);
+            });
 
             if (result.success) {
-                toast.success('Profile created successfully!');
-                // Note: File uploads to Supabase Storage would happen here in a real app
+                toast.success('Ready to go!');
                 onComplete();
-            } else {
-                throw result.error;
-            }
+            } else throw result.error;
         } catch (error: any) {
-            console.error('Onboarding error:', error);
-            toast.error(`Failed to create profile: ${error?.message || JSON.stringify(error)}`);
+            toast.error('Setup failed.');
         } finally {
             setLoading(false);
         }
     };
 
+    const stepIndex = step === 'type-selection' ? 1 : step === 'basic' ? 2 : step === 'academic' ? 3 : step === 'verification' ? 4 : 5;
+
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-            <Card className="w-full max-w-lg shadow-xl">
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <CardTitle>Student Onboarding</CardTitle>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50/50 p-6">
+            <Card className="w-full max-w-xl shadow-2xl border-slate-200/60 overflow-hidden">
+                {/* Progress Header */}
+                <div className="bg-slate-900 px-8 py-4 flex justify-between items-center text-white">
+                   <div className="flex items-center gap-3">
+                      <GraduationCap className="w-6 h-6 text-blue-400" />
+                      <span className="font-bold tracking-tight">Setup Profile</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-400">Step {stepIndex} of 5</span>
+                      <div className="flex gap-1">
+                         {[1,2,3,4,5].map(i => (
+                           <div key={i} className={`h-1.5 w-4 rounded-full ${i <= stepIndex ? 'bg-blue-500' : 'bg-slate-700'}`} />
+                         ))}
+                      </div>
+                   </div>
+                </div>
+
+                <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                        <div>
+                           <CardTitle className="text-2xl">
+                             {step === 'type-selection' ? 'Choose Your Journey' : 
+                              step === 'basic' ? 'Personal Info' :
+                              step === 'academic' ? 'Academic Details' :
+                              step === 'verification' ? 'AI Verification' : 'Student Lifestyle'}
+                           </CardTitle>
+                           <CardDescription className="mt-1">
+                              {step === 'type-selection' ? 'Select your enrollment category to customize your experience.' : 'Help us personalize your degree planner.'}
+                           </CardDescription>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-400 hover:text-red-500 transition-colors">
                             <LogOut className="w-4 h-4 mr-2" />
                             Exit
                         </Button>
                     </div>
-                    <CardDescription>
-                        Step {step === 'type-selection' ? 1 : step === 'basic' ? 2 : step === 'academic' ? 3 : step === 'verification' ? 4 : 5} of 5
-                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+
+                <CardContent className="space-y-6">
                     {step === 'type-selection' && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div
-                                className={`cursor-pointer border-2 rounded-lg p-4 text-center hover:border-[#003366] transition-colors ${formData.studentType === 'local' ? 'border-[#003366] bg-blue-50' : 'border-gray-200'}`}
+                                className={`cursor-pointer border-2 rounded-2xl p-6 transition-all duration-300 group ${formData.studentType === 'local' ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'}`}
                                 onClick={() => handleSelectChange('studentType', 'local')}
                             >
-                                <div className="text-xl font-semibold mb-2">Local Student</div>
-                                <p className="text-sm text-gray-500">I'm a local student studying in Trinidad & Tobago.</p>
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${formData.studentType === 'local' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-blue-600'}`}>
+                                   <Check className="w-6 h-6" />
+                                </div>
+                                <h4 className="text-lg font-bold text-slate-900">Local</h4>
+                                <p className="text-sm text-slate-500 mt-1">Studying in Trinidad & Tobago.</p>
                             </div>
                             <div
-                                className={`cursor-pointer border-2 rounded-lg p-4 text-center hover:border-[#003366] transition-colors ${formData.studentType === 'international' ? 'border-[#003366] bg-blue-50' : 'border-gray-200'}`}
+                                className={`cursor-pointer border-2 rounded-2xl p-6 transition-all duration-300 group ${formData.studentType === 'international' ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'}`}
                                 onClick={() => handleSelectChange('studentType', 'international')}
                             >
-                                <div className="text-xl font-semibold mb-2">International Student</div>
-                                <p className="text-sm text-gray-500">I'm an international student studying abroad.</p>
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${formData.studentType === 'international' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-blue-600'}`}>
+                                   <Sparkles className="w-6 h-6" />
+                                </div>
+                                <h4 className="text-lg font-bold text-slate-900">International</h4>
+                                <p className="text-sm text-slate-500 mt-1">Studying from abroad.</p>
                             </div>
                         </div>
                     )}
 
                     {step === 'basic' && (
-                        <>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="firstName">First Name</Label>
+                                    <Label className="font-semibold text-slate-700 ml-1">First Name</Label>
                                     <Input id="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="Dwayne" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="lastName">Last Name</Label>
+                                    <Label className="font-semibold text-slate-700 ml-1">Last Name</Label>
                                     <Input id="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Headley" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="studentId">Student ID (10 Entires - Digits only)</Label>
-                                <Input
-                                    id="studentId"
-                                    value={formData.studentId}
-                                    onChange={handleInputChange}
-                                    placeholder="0000000000"
-                                    maxLength={10}
-                                />
-                                <p className="text-xs text-muted-foreground">Must be exactly 10 numbers.</p>
+                                <Label className="font-semibold text-slate-700 ml-1">Student ID (10 Digits)</Label>
+                                <Input id="studentId" value={formData.studentId} onChange={handleInputChange} placeholder="2021000000" maxLength={10} />
                             </div>
-                        </>
+                        </div>
                     )}
 
                     {step === 'academic' && (
-                        <>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
                             <div className="space-y-2">
-                                <Label htmlFor="major">Major / Program</Label>
-                                <Input id="major" value={formData.major} onChange={handleInputChange} placeholder="Computer Science" />
+                                <Label className="font-semibold text-slate-700 ml-1">Degree Program</Label>
+                                <Input id="major" value={formData.major} onChange={handleInputChange} placeholder="BSc Computer Science" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="graduationDate">Expected Graduation Date</Label>
+                                <Label className="font-semibold text-slate-700 ml-1">Exp. Graduation</Label>
                                 <Input id="graduationDate" type="month" value={formData.graduationDate} onChange={handleInputChange} />
                             </div>
 
-                            <div className="pt-4 border-t">
-                                <Label className="mb-2 block">Upload Documents</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                                <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${files.bulletin ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'}`}>
+                                   <input id="bulletin-upload" type="file" accept=".pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileChange(e, 'bulletin')} />
+                                   <div className="flex flex-col items-center gap-2">
+                                      <Upload className={`w-8 h-8 ${files.bulletin ? 'text-emerald-500' : 'text-slate-300'}`} />
+                                      <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{files.bulletin ? 'Bulletin Uploaded' : 'Upload Bulletin'}</span>
+                                      {files.bulletin && <p className="text-[10px] text-emerald-600 truncate max-w-full font-medium">{files.bulletin.name}</p>}
+                                   </div>
+                                </div>
 
-                                <div className="space-y-4">
-                                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <Upload className="h-8 w-8 text-gray-400" />
-                                            <Label htmlFor="bulletin-upload" className="cursor-pointer text-[#003366]">
-                                                {files.bulletin ? files.bulletin.name : "Upload Programme Bulletin (PDF)"}
-                                            </Label>
-                                            <Input id="bulletin-upload" type="file" accept=".pdf" className="hidden" onChange={(e) => handleFileChange(e, 'bulletin')} />
-                                        </div>
-                                    </div>
-
-                                    {(
-                                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <FileText className="h-8 w-8 text-gray-400" />
-                                                <Label htmlFor="transcript-upload" className="cursor-pointer text-[#003366]">
-                                                    {files.transcript ? files.transcript.name : "Upload Transcript (PDF)"}
-                                                </Label>
-                                                <Input id="transcript-upload" type="file" accept=".pdf" className="hidden" onChange={(e) => handleFileChange(e, 'transcript')} />
-                                            </div>
-                                        </div>
-                                    )}
+                                <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${files.transcript ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'}`}>
+                                   <input id="transcript-upload" type="file" accept=".pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileChange(e, 'transcript')} />
+                                   <div className="flex flex-col items-center gap-2">
+                                      <FileText className={`w-8 h-8 ${files.transcript ? 'text-blue-500' : 'text-slate-300'}`} />
+                                      <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{files.transcript ? 'Transcript Uploaded' : 'Upload Transcript'}</span>
+                                      {files.transcript && <p className="text-[10px] text-blue-600 truncate max-w-full font-medium">{files.transcript.name}</p>}
+                                   </div>
                                 </div>
                             </div>
-                        </>
+                        </div>
                     )}
 
                     {step === 'verification' && (
-                        <div className="text-center space-y-4 py-4">
+                        <div className="text-center py-8 space-y-4 animate-in zoom-in-95">
                             {verifying ? (
-                                <div className="flex flex-col items-center">
-                                    <Loader2 className="h-12 w-12 animate-spin text-[#003366] mb-4" />
-                                    <h3 className="text-xl font-semibold">Verifying Transcript...</h3>
-                                    <p className="text-muted-foreground">Our AI is analyzing your academic records.</p>
+                                <div className="space-y-6">
+                                    <div className="relative w-20 h-20 mx-auto">
+                                       <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                                       <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                                       <Loader2 className="absolute inset-0 m-auto w-10 h-10 text-blue-600" />
+                                    </div>
+                                    <div>
+                                       <h3 className="text-xl font-bold text-slate-900 tracking-tight">AI Analysis in Progress</h3>
+                                       <p className="text-sm text-slate-500 mt-1 font-medium">Scanning transcript for GPA and course history...</p>
+                                    </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center">
-                                    {verificationResult?.match ? (
-                                        <ShieldCheck className="h-16 w-16 text-green-500 mb-4" />
-                                    ) : (
-                                        <AlertCircle className="h-16 w-16 text-yellow-500 mb-4" />
-                                    )}
-                                    <h3 className="text-xl font-semibold mb-2">
-                                        {verificationResult?.match ? "Verification Successful" : "Verification Note"}
-                                    </h3>
-                                    <p className="text-gray-600 mb-6 max-w-xs mx-auto">
-                                        {verificationResult?.message}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        You can proceed to the next step.
-                                    </p>
+                                <div className="space-y-6">
+                                    <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${verificationResult?.match ? 'bg-emerald-100 text-emerald-600 shadow-emerald-900/10' : 'bg-amber-100 text-amber-600 shadow-amber-900/10'}`}>
+                                        {verificationResult?.match ? <ShieldCheck className="h-12 w-12" /> : <AlertCircle className="h-12 w-12" />}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">{verificationResult?.match ? "Data Verified Successfully" : "Review Required"}</h3>
+                                        <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto font-medium">{verificationResult?.message}</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     )}
 
                     {step === 'lifestyle' && (
-                        <>
+                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
                             <div className="space-y-2">
-                                <Label>Housing Type</Label>
+                                <Label className="font-semibold text-slate-700 ml-1">Housing</Label>
                                 <Select onValueChange={(val) => handleSelectChange('housingType', val)} defaultValue={formData.housingType}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select housing" />
+                                    <SelectTrigger className="h-11 rounded-xl">
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="dorm">On-Campus Dorm</SelectItem>
                                         <SelectItem value="renting">Off-Campus Renting</SelectItem>
-                                        <SelectItem value="other">Commuter / Other</SelectItem>
+                                        <SelectItem value="other">Commuter / Home</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            {formData.housingType === 'dorm' && (
-                                <div className="space-y-2">
-                                    <Label>Dorm Room Type</Label>
-                                    <Select onValueChange={(val) => handleSelectChange('dormRoomType', val)} defaultValue={formData.dormRoomType}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select room type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="single">Single</SelectItem>
-                                            <SelectItem value="double">Double</SelectItem>
-                                            <SelectItem value="triple">Triple</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
-
                             <div className="space-y-2">
-                                <Label>Meal Plan</Label>
+                                <Label className="font-semibold text-slate-700 ml-1">Meal Plan</Label>
                                 <Select onValueChange={(val) => handleSelectChange('mealPlan', val)} defaultValue={formData.mealPlan}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select meal plan" />
+                                    <SelectTrigger className="h-11 rounded-xl">
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">No Meal Plan</SelectItem>
+                                        <SelectItem value="none">None</SelectItem>
                                         <SelectItem value="two_meal">2 Meals/Day</SelectItem>
                                         <SelectItem value="three_meal">3 Meals/Day</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </>
+                        </div>
                     )}
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                    {step !== 'type-selection' && step !== 'verification' && (
+
+                <CardFooter className="flex justify-between border-t border-slate-100 pt-6">
+                    {step !== 'type-selection' && step !== 'verification' ? (
                         <Button variant="outline" onClick={() => {
                             if (step === 'basic') setStep('type-selection');
                             else if (step === 'academic') setStep('basic');
@@ -380,23 +346,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         }}>
                             Back
                         </Button>
-                    )}
+                    ) : <div />}
 
-                    {/* Placeholder for alignment if Back button is hidden */}
-                    {(step === 'type-selection' || step === 'verification') && <div></div>}
-
-                    <div className="flex-1 flex justify-end">
-                        {step === 'lifestyle' ? (
-                            <Button onClick={handleSubmit} disabled={loading} className="bg-[#003366] hover:bg-[#00254d]">
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Complete Setup <Check className="ml-2 h-4 w-4" />
-                            </Button>
-                        ) : (
-                            <Button onClick={nextStep} disabled={verifying} className="bg-[#003366] hover:bg-[#00254d]">
-                                {step === 'verification' ? 'Continue' : 'Next'} <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        )}
-                    </div>
+                    <Button onClick={step === 'lifestyle' ? handleSubmit : nextStep} disabled={verifying || loading} className="min-w-[140px]">
+                        {loading || verifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 
+                         (step === 'lifestyle' ? 'Launch Dashboard' : (step === 'verification' ? 'Continue' : 'Next Step'))}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                 </CardFooter>
             </Card>
         </div>

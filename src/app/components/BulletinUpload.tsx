@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Copy, Download, Eye, Trash2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Copy, Download, Eye, Trash2, ShieldCheck, Database } from 'lucide-react';
 
 interface ParsedRule {
   course: string;
@@ -9,11 +9,10 @@ interface ParsedRule {
 }
 
 export function BulletinUpload() {
-  const [bulletinUploaded, setBulletinUploaded] = useState(true); // Mock as already uploaded
+  const [bulletinUploaded, setBulletinUploaded] = useState(true);
   const [transcriptText, setTranscriptText] = useState('');
   const [transcriptParsed, setTranscriptParsed] = useState(false);
 
-  // Mock parsed bulletin rules
   const parsedRules: ParsedRule[] = [
     { course: 'CPTR360 - Data Structures', prerequisites: ['CPTR210'], credits: 3, verified: true },
     { course: 'CPTR370 - Algorithms', prerequisites: ['CPTR360', 'MATH245'], credits: 3, verified: true },
@@ -27,17 +26,12 @@ export function BulletinUpload() {
   const handleBulletinUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Simulate upload
-      setTimeout(() => {
-        setBulletinUploaded(true);
-      }, 1000);
+      setTimeout(() => setBulletinUploaded(true), 1000);
     }
   };
 
   const handleTranscriptParse = () => {
-    if (transcriptText.trim()) {
-      setTranscriptParsed(true);
-    }
+    if (transcriptText.trim()) setTranscriptParsed(true);
   };
 
   const mockTranscriptData = `UNIVERSITY OF THE SOUTHERN CARIBBEAN
@@ -64,278 +58,186 @@ RELB102  New Testament Survey              2.00  IP
 Current Credits: 15.00`;
 
   return (
-    <div className="h-full bg-gray-50 overflow-y-auto">
-      <div className="max-w-6xl mx-auto p-8 space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#003366] rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl text-gray-900">Bulletin & Transcript Upload</h2>
-              <p className="text-sm text-gray-600">
-                Upload your Academic Bulletin and paste your transcript for intelligent course planning
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bulletin Upload Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h3 className="text-lg text-gray-900">Academic Bulletin Upload</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Upload your specific degree bulletin PDF for accurate prerequisite validation
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="p-8 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <Database className="w-6 h-6 text-[#003366]" />
+              Data Import
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+              Upload your Bulletin and Transcript to sync your degree audit.
             </p>
           </div>
+          <div className="flex gap-2">
+             <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium transition-colors shadow-sm">
+                View History
+             </button>
+             <button className="px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] text-sm font-medium transition-colors shadow-md shadow-blue-900/20">
+                Sync Now
+             </button>
+          </div>
+        </div>
+      </div>
 
-          <div className="p-6">
-            {!bulletinUploaded ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#003366] transition-colors cursor-pointer">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleBulletinUpload}
-                  className="hidden"
-                  id="bulletin-upload"
-                />
-                <label htmlFor="bulletin-upload" className="cursor-pointer">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-900 mb-2">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Academic Bulletin PDF (max 50MB)
-                  </p>
-                </label>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Uploaded File Info */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm text-green-900">
-                        USC_CS_Bulletin_2021-2025.pdf
-                      </p>
-                      <button className="text-red-600 hover:text-red-700">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-green-700">
-                      Uploaded on Jan 15, 2024 • 8.4 MB • 247 pages parsed
-                    </p>
-                    <div className="mt-2 flex gap-2">
-                      <button className="text-xs px-3 py-1 bg-white text-green-700 rounded border border-green-200 hover:bg-green-50 flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
-                        Preview
-                      </button>
-                      <button className="text-xs px-3 py-1 bg-white text-green-700 rounded border border-green-200 hover:bg-green-50 flex items-center gap-1">
-                        <Download className="w-3 h-3" />
-                        Download
-                      </button>
-                    </div>
-                  </div>
-                </div>
+      <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+           {/* Bulletin Upload Section */}
+           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+               <div>
+                 <h3 className="font-semibold text-slate-900">Academic Bulletin</h3>
+                 <p className="text-xs text-slate-500 mt-0.5">Defines your degree requirements</p>
+               </div>
+               <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><ShieldCheck className="w-4 h-4" /></div>
+             </div>
 
-                {/* Parsed Rules Section */}
-                <div className="mt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-gray-900">Extracted Course Rules</h4>
-                    <span className="text-sm text-gray-600">
-                      {parsedRules.filter(r => r.verified).length}/{parsedRules.length} verified
-                    </span>
-                  </div>
+             <div className="p-6 flex-1 flex flex-col justify-center">
+               {!bulletinUploaded ? (
+                 <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-[#003366] hover:bg-slate-50 transition-all cursor-pointer group">
+                   <input
+                     type="file"
+                     accept=".pdf"
+                     onChange={handleBulletinUpload}
+                     className="hidden"
+                     id="bulletin-upload"
+                   />
+                   <label htmlFor="bulletin-upload" className="cursor-pointer block">
+                     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform text-slate-400 group-hover:text-[#003366]">
+                       <Upload className="w-6 h-6" />
+                     </div>
+                     <p className="font-medium text-slate-900 mb-1">Click to upload PDF</p>
+                     <p className="text-xs text-slate-500">Max 50MB</p>
+                   </label>
+                 </div>
+               ) : (
+                 <div className="space-y-4">
+                   <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-start gap-3">
+                     <div className="p-2 bg-white rounded-lg shadow-sm text-emerald-600"><FileText className="w-5 h-5" /></div>
+                     <div className="flex-1 min-w-0">
+                       <p className="text-sm font-semibold text-emerald-900 truncate">USC_CS_Bulletin_2021-2025.pdf</p>
+                       <p className="text-xs text-emerald-700 mt-0.5">Verified • 247 pages parsed</p>
+                       
+                       <div className="mt-3 flex gap-2">
+                         <button className="text-xs px-3 py-1.5 bg-white text-slate-700 rounded-md border border-slate-200 hover:bg-slate-50 flex items-center gap-1 transition-colors">
+                           <Eye className="w-3 h-3" /> Preview
+                         </button>
+                         <button onClick={() => setBulletinUploaded(false)} className="text-xs px-3 py-1.5 bg-white text-red-600 rounded-md border border-red-200 hover:bg-red-50 flex items-center gap-1 transition-colors">
+                           <Trash2 className="w-3 h-3" /> Remove
+                         </button>
+                       </div>
+                     </div>
+                   </div>
 
-                  <div className="space-y-2">
-                    {parsedRules.map((rule, index) => (
-                      <div
-                        key={index}
-                        className={`border rounded-lg p-4 ${
-                          rule.verified
-                            ? 'bg-white border-gray-200'
-                            : 'bg-yellow-50 border-yellow-200'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm text-gray-900">{rule.course}</p>
-                              {rule.verified ? (
-                                <CheckCircle className="w-4 h-4 text-green-600" />
-                              ) : (
-                                <AlertCircle className="w-4 h-4 text-yellow-600" />
-                              )}
+                   <div className="space-y-2">
+                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Extracted Rules</p>
+                     <div className="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                        {parsedRules.map((rule, index) => (
+                          <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-200 bg-slate-50/30 transition-colors">
+                            {rule.verified ? <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /> : <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />}
+                            <div>
+                               <p className="text-xs font-medium text-slate-900">{rule.course}</p>
+                               <p className="text-[10px] text-slate-500 mt-0.5">Prereq: {rule.prerequisites.join(', ') || 'None'}</p>
                             </div>
-                            <p className="text-xs text-gray-600">
-                              Prerequisites: {rule.prerequisites.length > 0 ? rule.prerequisites.join(', ') : 'None'} • 
-                              {rule.credits} credits
-                            </p>
                           </div>
-                          {!rule.verified && (
-                            <div className="flex gap-2">
-                              <button className="text-xs px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
-                                Confirm
-                              </button>
-                              <button className="text-xs px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                                Edit
-                              </button>
+                        ))}
+                     </div>
+                   </div>
+                 </div>
+               )}
+             </div>
+           </div>
+
+           {/* Transcript Parser Section */}
+           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+               <div>
+                 <h3 className="font-semibold text-slate-900">Transcript Parser</h3>
+                 <p className="text-xs text-slate-500 mt-0.5">Syncs your completed grades</p>
+               </div>
+               <div className="p-2 bg-purple-50 text-purple-600 rounded-lg"><FileText className="w-4 h-4" /></div>
+             </div>
+
+             <div className="p-6 flex-1 flex flex-col">
+               {!transcriptParsed ? (
+                 <div className="space-y-4 flex-1 flex flex-col">
+                   <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 flex gap-3 text-xs text-blue-800">
+                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                     <div>
+                       <span className="font-semibold">Instructions:</span> Log in to Aeorion, go to Transcript, Copy All (Ctrl+A), and paste below.
+                     </div>
+                   </div>
+
+                   <div className="relative flex-1">
+                     <textarea
+                       value={transcriptText}
+                       onChange={(e) => setTranscriptText(e.target.value)}
+                       placeholder="Paste transcript text here..."
+                       className="w-full h-full min-h-[160px] px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] font-mono text-xs resize-none"
+                     />
+                     <button
+                       onClick={() => setTranscriptText(mockTranscriptData)}
+                       className="absolute bottom-3 right-3 text-xs px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-50 flex items-center gap-1 shadow-sm"
+                     >
+                       <Copy className="w-3 h-3" /> Sample
+                     </button>
+                   </div>
+
+                   <button
+                     onClick={handleTranscriptParse}
+                     disabled={!transcriptText.trim()}
+                     className="w-full py-2.5 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] transition-all shadow-md shadow-blue-900/10 disabled:opacity-50 disabled:shadow-none font-medium flex items-center justify-center gap-2"
+                   >
+                     <Database className="w-4 h-4" /> Parse Data
+                   </button>
+                 </div>
+               ) : (
+                 <div className="space-y-4 h-full flex flex-col">
+                   <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-1.5 bg-emerald-100 rounded-full text-emerald-600"><CheckCircle className="w-4 h-4" /></div>
+                        <div>
+                          <p className="text-sm font-semibold text-emerald-900">Success!</p>
+                          <p className="text-xs text-emerald-700">15 courses extracted</p>
+                        </div>
+                      </div>
+                      <button onClick={() => setTranscriptParsed(false)} className="text-xs text-emerald-700 hover:text-emerald-900 font-medium">Reset</button>
+                   </div>
+
+                   <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                      <div className="space-y-2">
+                        {[
+                          { code: 'CPTR150', name: 'Intro to Programming I', grade: 'A', status: 'completed' },
+                          { code: 'MATH141', name: 'Calculus I', grade: 'B+', status: 'completed' },
+                          { code: 'ENGL101', name: 'English Composition I', grade: 'A-', status: 'completed' },
+                          { code: 'HIST101', name: 'World Civilization', grade: 'B', status: 'completed' },
+                          { code: 'RELB101', name: 'Old Testament Survey', grade: 'A', status: 'completed' },
+                          { code: 'CPTR210', name: 'Intro to Programming II', grade: 'IP', status: 'in-progress' },
+                        ].map((course, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 bg-white shadow-sm transition-colors">
+                            <div>
+                               <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-700">{course.code}</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${course.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                                    {course.grade}
+                                  </span>
+                               </div>
+                               <p className="text-xs text-slate-500 mt-0.5">{course.name}</p>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+                   </div>
 
-        {/* Transcript Scraper Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h3 className="text-lg text-gray-900">Transcript Scraper</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Paste your transcript text from Aeorion for automatic parsing
-            </p>
-          </div>
-
-          <div className="p-6">
-            {!transcriptParsed ? (
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div className="text-sm text-blue-800">
-                    <p className="mb-2">How to use the Transcript Scraper:</p>
-                    <ol className="list-decimal list-inside space-y-1 text-xs">
-                      <li>Log in to Aeorion Student Portal</li>
-                      <li>Navigate to Academics → Transcript</li>
-                      <li>Press Ctrl+A (or Cmd+A) to select all text</li>
-                      <li>Press Ctrl+C (or Cmd+C) to copy</li>
-                      <li>Paste below and click Parse</li>
-                    </ol>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <textarea
-                    value={transcriptText}
-                    onChange={(e) => setTranscriptText(e.target.value)}
-                    placeholder="Paste your raw transcript text here..."
-                    className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366] font-mono text-sm"
-                  />
-                  <button
-                    onClick={() => setTranscriptText(mockTranscriptData)}
-                    className="absolute top-3 right-3 text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center gap-1"
-                  >
-                    <Copy className="w-3 h-3" />
-                    Use Sample
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleTranscriptParse}
-                  disabled={!transcriptText.trim()}
-                  className="w-full px-4 py-3 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <Upload className="w-5 h-5" />
-                  Parse Transcript
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm text-green-900">
-                      Transcript Successfully Parsed!
-                    </p>
-                    <p className="text-xs text-green-700 mt-1">
-                      Extracted 10 completed courses and 5 in-progress courses
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setTranscriptParsed(false)}
-                    className="text-sm text-green-700 hover:text-green-800"
-                  >
-                    Re-parse
-                  </button>
-                </div>
-
-                {/* Parsed Courses */}
-                <div>
-                  <h4 className="text-gray-900 mb-3">Extracted Courses</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {[
-                      { code: 'CPTR150', name: 'Intro to Programming I', grade: 'A', credits: 3, status: 'completed' },
-                      { code: 'MATH141', name: 'Calculus I', grade: 'B+', credits: 4, status: 'completed' },
-                      { code: 'ENGL101', name: 'English Composition I', grade: 'A-', credits: 3, status: 'completed' },
-                      { code: 'HIST101', name: 'World Civilization', grade: 'B', credits: 3, status: 'completed' },
-                      { code: 'RELB101', name: 'Old Testament Survey', grade: 'A', credits: 2, status: 'completed' },
-                      { code: 'CPTR210', name: 'Intro to Programming II', grade: 'IP', credits: 3, status: 'in-progress' },
-                    ].map((course, index) => (
-                      <div
-                        key={index}
-                        className={`border rounded-lg p-3 ${
-                          course.status === 'completed'
-                            ? 'bg-green-50 border-green-200'
-                            : 'bg-blue-50 border-blue-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-gray-900">{course.code}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            course.status === 'completed'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {course.grade}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-600">{course.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">{course.credits} credits</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button className="w-full px-4 py-3 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] transition-colors">
-                  Import to Degree Planner
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Features Overview */}
-        <div className="bg-gradient-to-br from-[#003366] to-[#00509e] rounded-lg shadow-lg p-6 text-white">
-          <h3 className="text-xl mb-4">How UniPlanner Uses Your Data</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/10 rounded-lg p-4">
-              <CheckCircle className="w-6 h-6 mb-2" />
-              <h4 className="text-sm mb-1">Prerequisite Validation</h4>
-              <p className="text-xs text-white/80">
-                Real-time checks against official bulletin requirements
-              </p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-4">
-              <CheckCircle className="w-6 h-6 mb-2" />
-              <h4 className="text-sm mb-1">AI Context</h4>
-              <p className="text-xs text-white/80">
-                Powers intelligent responses in the AI Advisor
-              </p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-4">
-              <CheckCircle className="w-6 h-6 mb-2" />
-              <h4 className="text-sm mb-1">Automatic Updates</h4>
-              <p className="text-xs text-white/80">
-                Keeps your degree map synced with completed courses
-              </p>
-            </div>
-          </div>
+                   <button className="w-full py-2.5 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] transition-all shadow-md shadow-blue-900/10 font-medium">
+                     Apply to Degree Planner
+                   </button>
+                 </div>
+               )}
+             </div>
+           </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd';
 import { CourseCard } from '@/app/components/CourseCard';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Calendar } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -61,63 +61,73 @@ export function SemesterColumn({
   const isOverload = totalCredits > 18;
   const isUnderload = totalCredits > 0 && totalCredits < 12;
 
-  let borderColor = 'border-gray-300';
-  let bgColor = 'bg-white';
-  let headerBg = 'bg-gray-50';
+  // Modern Column Styling
+  let columnBg = 'bg-slate-50/50';
+  let headerColor = 'text-slate-600';
+  let badgeStyle = 'bg-slate-200 text-slate-700';
+  let borderColor = 'border-transparent';
 
   if (status === 'completed') {
-    borderColor = 'border-green-300';
-    headerBg = 'bg-green-50';
+    columnBg = 'bg-slate-50/80';
+    badgeStyle = 'bg-emerald-100 text-emerald-700';
   } else if (status === 'current') {
-    borderColor = 'border-blue-300';
-    headerBg = 'bg-blue-50';
+    columnBg = 'bg-blue-50/30';
+    headerColor = 'text-blue-900';
+    badgeStyle = 'bg-blue-100 text-blue-700';
+    borderColor = 'border-blue-200';
   }
 
   if (isOver && canDrop) {
-    borderColor = 'border-[#FDB515] border-2';
-    bgColor = 'bg-yellow-50';
+    columnBg = 'bg-blue-50 border-2 border-dashed border-blue-300';
   }
 
   return (
     <div
       ref={drop}
-      className={`w-80 flex-shrink-0 rounded-lg border-2 ${borderColor} ${bgColor} flex flex-col transition-all duration-200`}
+      className={`w-80 flex-shrink-0 flex flex-col rounded-2xl transition-all duration-200 group ${columnBg} ${borderColor} ${status === 'current' ? 'border' : ''}`}
     >
-      {/* Header */}
-      <div className={`${headerBg} px-4 py-3 rounded-t-lg border-b border-gray-200`}>
+      {/* Column Header */}
+      <div className="px-5 py-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-gray-900">{semester}</h3>
-          <span className={`px-2 py-1 rounded text-xs ${
-            status === 'completed' ? 'bg-green-100 text-green-700' :
-            status === 'current' ? 'bg-blue-100 text-blue-700' :
-            'bg-gray-100 text-gray-700'
-          }`}>
-            {status === 'completed' ? 'Completed' : status === 'current' ? 'In Progress' : 'Planned'}
+          <div className="flex items-center gap-2">
+            <h3 className={`font-bold ${headerColor}`}>{semester}</h3>
+          </div>
+          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${badgeStyle}`}>
+            {status === 'completed' ? 'Done' : status === 'current' ? 'Current' : 'Planned'}
           </span>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Total Credits:</span>
+        
+        <div className="flex items-center justify-between text-xs font-medium">
+          <span className="text-slate-400">Credits</span>
           <span className={`${
-            isOverload ? 'text-red-600' : isUnderload ? 'text-yellow-600' : 'text-gray-900'
+            isOverload ? 'text-red-600' : isUnderload ? 'text-amber-600' : 'text-slate-700'
           }`}>
-            {totalCredits} credits
+            {totalCredits} / 18
           </span>
         </div>
+
+        {/* Progress Bar for Credits */}
+        <div className="mt-2 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+           <div 
+             className={`h-full rounded-full ${isOverload ? 'bg-red-500' : isUnderload ? 'bg-amber-400' : 'bg-emerald-500'}`} 
+             style={{ width: `${Math.min((totalCredits / 18) * 100, 100)}%` }}
+           />
+        </div>
+
+        {creditWarning && (
+          <div className="mt-3 bg-amber-50/50 border border-amber-100 rounded-lg p-2 flex items-start gap-2">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-[10px] text-amber-800 leading-tight">{creditWarning}</p>
+          </div>
+        )}
       </div>
 
-      {/* Warnings */}
-      {creditWarning && (
-        <div className="mx-4 mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-yellow-800">{creditWarning}</p>
-        </div>
-      )}
-
-      {/* Course List */}
-      <div className="flex-1 p-4 space-y-3 min-h-[400px]">
+      {/* Course List Area */}
+      <div className="flex-1 px-3 pb-3 space-y-3 overflow-y-auto custom-scrollbar">
         {courses.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-            Drop courses here
+          <div className="h-40 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl m-2">
+            <Calendar className="w-8 h-8 opacity-20 mb-2" />
+            <span className="text-xs font-medium">No courses</span>
           </div>
         ) : (
           courses.map((course) => (
@@ -129,11 +139,6 @@ export function SemesterColumn({
             />
           ))
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 py-2 bg-gray-50 rounded-b-lg border-t border-gray-200 text-xs text-gray-600">
-        {courses.length} {courses.length === 1 ? 'course' : 'courses'}
       </div>
     </div>
   );

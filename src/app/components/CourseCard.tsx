@@ -1,5 +1,6 @@
 import { useDrag } from 'react-dnd';
-import { GripVertical, AlertTriangle, CheckCircle, Clock, Beaker } from 'lucide-react';
+import { GripVertical, AlertTriangle, CheckCircle2, Clock, Beaker, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Course {
   id: string;
@@ -30,29 +31,17 @@ export function CourseCard({ course, allCourses, currentSemester }: CourseCardPr
     }),
   }), [course]);
 
-  // Check if prerequisites are met
   const checkPrerequisitesMet = () => {
-    if (!course.prerequisites || course.prerequisites.length === 0) {
-      return { met: true, missing: [] };
-    }
-
+    if (!course.prerequisites || course.prerequisites.length === 0) return { met: true, missing: [] };
     const semesters = ['Fall 2023', 'Spring 2024', 'Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026'];
     const currentIndex = semesters.indexOf(currentSemester);
-
     const missing: string[] = [];
     for (const prereqCode of course.prerequisites) {
       const prereqCourse = allCourses.find(c => c.code === prereqCode);
-      if (!prereqCourse) {
-        missing.push(prereqCode);
-        continue;
-      }
-
-      const prereqIndex = semesters.indexOf(prereqCourse.semester);
-      if (prereqIndex >= currentIndex) {
+      if (!prereqCourse || semesters.indexOf(prereqCourse.semester) >= currentIndex) {
         missing.push(prereqCode);
       }
     }
-
     return { met: missing.length === 0, missing };
   };
 
@@ -60,82 +49,78 @@ export function CourseCard({ course, allCourses, currentSemester }: CourseCardPr
   const hasPrereqIssue = !prereqCheck.met && course.status !== 'completed';
 
   let cardBg = 'bg-white';
-  let borderColor = 'border-gray-200';
-  let statusIcon = null;
+  let accentColor = 'bg-slate-300';
+  let statusIcon = <Info className="w-4 h-4 text-slate-400" />;
 
   if (course.status === 'completed') {
-    cardBg = 'bg-green-50';
-    borderColor = 'border-green-200';
-    statusIcon = <CheckCircle className="w-4 h-4 text-green-600" />;
+    cardBg = 'bg-white border-emerald-100';
+    accentColor = 'bg-emerald-500';
+    statusIcon = <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
   } else if (course.status === 'in-progress') {
-    cardBg = 'bg-blue-50';
-    borderColor = 'border-blue-200';
-    statusIcon = <Clock className="w-4 h-4 text-blue-600" />;
+    cardBg = 'bg-white border-blue-200 shadow-md ring-1 ring-blue-50';
+    accentColor = 'bg-blue-500';
+    statusIcon = <Clock className="w-4 h-4 text-blue-500" />;
   } else if (hasPrereqIssue) {
-    cardBg = 'bg-red-50';
-    borderColor = 'border-red-300';
-    statusIcon = <AlertTriangle className="w-4 h-4 text-red-600" />;
+    cardBg = 'bg-red-50/50 border-red-200';
+    accentColor = 'bg-red-500';
+    statusIcon = <AlertTriangle className="w-4 h-4 text-red-500" />;
   }
 
   return (
     <div
       ref={drag}
-      className={`${cardBg} border ${borderColor} rounded-lg p-3 cursor-move transition-all hover:shadow-md ${
-        isDragging ? 'opacity-50 scale-95' : 'opacity-100'
+      className={`relative group rounded-2xl p-4 border transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-xl hover:shadow-slate-200/50 ${cardBg} ${
+        isDragging ? 'opacity-40 scale-95 rotate-2' : 'opacity-100'
       }`}
     >
-      <div className="flex items-start gap-2">
-        <GripVertical className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
+      {/* Dynamic Left Accent */}
+      <div className={`absolute left-0 top-4 bottom-4 w-1.5 rounded-r-full ${accentColor} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
+
+      <div className="flex gap-4">
         <div className="flex-1 min-w-0">
-          {/* Course Code and Status */}
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-900">{course.code}</span>
-              {statusIcon}
-            </div>
-            {course.grade && (
-              <span className="text-xs px-2 py-0.5 bg-white rounded border border-gray-200">
-                {course.grade}
+          <div className="flex items-center justify-between mb-1.5">
+             <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{course.code}</span>
+                {statusIcon}
+             </div>
+             {course.grade && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200 shadow-sm leading-none">
+                  {course.grade}
+                </span>
+             )}
+          </div>
+          
+          <h4 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-[#003366] transition-colors mb-3">
+            {course.name}
+          </h4>
+
+          <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <span className="bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 border border-slate-200/50">{course.credits} Credits</span>
+            {course.hasLabFee && (
+              <span className="flex items-center gap-1.5 text-amber-600">
+                <Beaker className="w-3 h-3" /> Lab Fee
               </span>
             )}
           </div>
 
-          {/* Course Name */}
-          <p className="text-sm text-gray-700 mb-2 line-clamp-2">{course.name}</p>
+           <AnimatePresence>
+             {hasPrereqIssue && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 pt-3 border-t border-red-100/50"
+              >
+                <p className="text-[10px] font-bold text-red-600 leading-tight uppercase tracking-wider">
+                  Missing Prereq: <span className="text-red-900">{prereqCheck.missing.join(', ')}</span>
+                </p>
+              </motion.div>
+            )}
+           </AnimatePresence>
+        </div>
 
-          {/* Course Details */}
-          <div className="flex items-center justify-between text-xs text-gray-600">
-            <div className="flex items-center gap-3">
-              <span>{course.credits} credits</span>
-              {course.hasLabFee && (
-                <span className="flex items-center gap-1 text-orange-600">
-                  <Beaker className="w-3 h-3" />
-                  Lab Fee
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Prerequisites Warning */}
-          {hasPrereqIssue && (
-            <div className="mt-2 pt-2 border-t border-red-200">
-              <div className="flex items-start gap-1">
-                <AlertTriangle className="w-3 h-3 text-red-600 mt-0.5 flex-shrink-0" />
-                <div className="text-xs text-red-700">
-                  <p>Missing: {prereqCheck.missing.join(', ')}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Prerequisites Info (for planned courses) */}
-          {course.prerequisites && course.prerequisites.length > 0 && !hasPrereqIssue && course.status === 'planned' && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
-              <p className="text-xs text-gray-600">
-                Prereq: {course.prerequisites.join(', ')}
-              </p>
-            </div>
-          )}
+        <div className="text-slate-200 opacity-0 group-hover:opacity-100 transition-all flex flex-col justify-center">
+           <GripVertical className="w-4 h-4" />
         </div>
       </div>
     </div>

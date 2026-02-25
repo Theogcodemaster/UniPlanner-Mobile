@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { DollarSign, Download, Calculator, AlertCircle } from 'lucide-react';
+import { DollarSign, Download, Calculator, AlertCircle, TrendingUp, CreditCard, Wallet, BookOpen, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 interface CourseFee {
   code: string;
@@ -7,15 +8,13 @@ interface CourseFee {
   credits: number;
   tuitionCost: number;
   labFee?: number;
-  specialFee?: number;
 }
 
 export function FinancialCalculator() {
   const [selectedSemester, setSelectedSemester] = useState('Fall 2024');
   
-  // Mock financial data
-  const tuitionPerCredit = 415; // TTD per credit
-  const generalFee = 1250; // TTD per semester
+  const tuitionPerCredit = 415;
+  const generalFee = 1250;
   const studentActivityFee = 300;
   const technologyFee = 500;
   const libraryFee = 200;
@@ -29,196 +28,212 @@ export function FinancialCalculator() {
     { code: 'COMM101', name: 'Public Speaking', credits: 3, tuitionCost: 3 * tuitionPerCredit },
   ];
 
-  const totalCredits = semesterCourses.reduce((sum, c) => sum + c.credits, 0);
   const tuitionSubtotal = semesterCourses.reduce((sum, c) => sum + c.tuitionCost, 0);
   const labFeesSubtotal = semesterCourses.reduce((sum, c) => sum + (c.labFee || 0), 0);
   const generalFeesTotal = generalFee + studentActivityFee + technologyFee + libraryFee;
   const grandTotal = tuitionSubtotal + labFeesSubtotal + generalFeesTotal;
+
+  const chartData = [
+    { name: 'Tuition', value: tuitionSubtotal, color: '#003366' },
+    { name: 'Lab Fees', value: labFeesSubtotal, color: '#FDB515' },
+    { name: 'General Fees', value: generalFeesTotal, color: '#3b82f6' },
+  ];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-TT', {
       style: 'currency',
       currency: 'TTD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
     }).format(amount);
   };
 
-  const exportClearanceLetter = () => {
-    alert('Generating Financial Clearance Letter PDF...\n\nThis would download a PDF that can be sent to parents or the scholarship office.');
-  };
-
   return (
-    <div className="h-full bg-gray-50 overflow-y-auto">
-      <div className="max-w-6xl mx-auto p-8 space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#003366] rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl text-gray-900">Financial Calculator</h2>
-                <p className="text-sm text-gray-600">
-                  Real-time cost breakdown for your planned semester
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={exportClearanceLetter}
-              className="flex items-center gap-2 px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#00254d] transition-colors"
+    <div className="h-full flex flex-col">
+      <div className="p-8 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <Wallet className="w-6 h-6 text-[#003366]" />
+              Financial Calculator
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">Real-time cost breakdown and automated payment forecasting.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <select
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-100 outline-none shadow-sm transition-all"
             >
-              <Download className="w-5 h-5" />
-              Export Letter
+              <option>Fall 2024</option>
+              <option>Spring 2025</option>
+            </select>
+            <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all font-medium">
+              <Download className="w-4 h-4" /> Export PDF
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Semester Selector */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <label className="block text-sm text-gray-700 mb-2">Select Semester</label>
-          <select
-            value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003366]"
-          >
-            <option>Fall 2024</option>
-            <option>Spring 2025</option>
-            <option>Fall 2025</option>
-            <option>Spring 2026</option>
-          </select>
-        </div>
-
-        {/* Summary Cards */}
+      <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-6">
+        {/* Top Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <p className="text-sm text-gray-600 mb-1">Total Credits</p>
-            <p className="text-2xl text-gray-900">{totalCredits}</p>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+             <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tuition</span>
+                <DollarSign className="w-4 h-4 text-blue-500" />
+             </div>
+             <p className="text-2xl font-bold text-slate-900">{formatCurrency(tuitionSubtotal)}</p>
           </div>
-          <div className="bg-blue-50 rounded-lg shadow-sm border border-blue-200 p-4">
-            <p className="text-sm text-blue-700 mb-1">Tuition</p>
-            <p className="text-2xl text-blue-900">{formatCurrency(tuitionSubtotal)}</p>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+             <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Fees</span>
+                <CreditCard className="w-4 h-4 text-amber-500" />
+             </div>
+             <p className="text-2xl font-bold text-slate-900">{formatCurrency(generalFeesTotal + labFeesSubtotal)}</p>
           </div>
-          <div className="bg-purple-50 rounded-lg shadow-sm border border-purple-200 p-4">
-            <p className="text-sm text-purple-700 mb-1">Fees</p>
-            <p className="text-2xl text-purple-900">{formatCurrency(generalFeesTotal + labFeesSubtotal)}</p>
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+             <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grand Total</span>
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+             </div>
+             <p className="text-2xl font-bold text-slate-900">{formatCurrency(grandTotal)}</p>
           </div>
-          <div className="bg-[#003366] rounded-lg shadow-md p-4">
-            <p className="text-sm text-white/80 mb-1">Grand Total</p>
-            <p className="text-2xl text-white">{formatCurrency(grandTotal)}</p>
-          </div>
-        </div>
-
-        {/* Course Breakdown */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg text-gray-900">Course Breakdown</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs text-gray-500">Course Code</th>
-                  <th className="px-6 py-3 text-left text-xs text-gray-500">Course Name</th>
-                  <th className="px-6 py-3 text-center text-xs text-gray-500">Credits</th>
-                  <th className="px-6 py-3 text-right text-xs text-gray-500">Tuition</th>
-                  <th className="px-6 py-3 text-right text-xs text-gray-500">Lab Fee</th>
-                  <th className="px-6 py-3 text-right text-xs text-gray-500">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {semesterCourses.map((course) => (
-                  <tr key={course.code} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{course.code}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{course.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-center">{course.credits}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right">{formatCurrency(course.tuitionCost)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                      {course.labFee ? formatCurrency(course.labFee) : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                      {formatCurrency(course.tuitionCost + (course.labFee || 0))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="bg-[#003366] rounded-2xl p-6 shadow-lg shadow-blue-900/20 text-white">
+             <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">Full Payment</span>
+                <Calculator className="w-4 h-4 text-blue-200" />
+             </div>
+             <p className="text-2xl font-bold">{formatCurrency(grandTotal * 0.95)}</p>
+             <p className="text-[10px] text-blue-300 font-bold mt-1">Includes 5% Prompt-Payment Discount</p>
           </div>
         </div>
 
-        {/* General Fees Breakdown */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg text-gray-900">General Fees</h3>
-          </div>
-          <div className="p-6 space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">General Fee</span>
-              <span className="text-gray-900">{formatCurrency(generalFee)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Student Activity Fee</span>
-              <span className="text-gray-900">{formatCurrency(studentActivityFee)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Technology Fee</span>
-              <span className="text-gray-900">{formatCurrency(technologyFee)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Library Fee</span>
-              <span className="text-gray-900">{formatCurrency(libraryFee)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Lab Fees</span>
-              <span className="text-gray-900">{formatCurrency(labFeesSubtotal)}</span>
-            </div>
-            <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
-              <span className="text-gray-900">Total Fees</span>
-              <span className="text-lg text-gray-900">{formatCurrency(generalFeesTotal + labFeesSubtotal)}</span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           {/* Visual Analytics */}
+           <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col">
+              <div className="flex items-center gap-2 mb-6">
+                <PieChartIcon className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-slate-900">Cost Distribution</h3>
+              </div>
+              <div className="flex-1 min-h-[250px] relative">
+                 <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                       <Pie
+                          data={chartData}
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                       >
+                          {chartData.map((entry, index) => (
+                             <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                       </Pie>
+                       <Tooltip 
+                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                         formatter={(value: number) => formatCurrency(value)}
+                       />
+                    </PieChart>
+                 </ResponsiveContainer>
+                 {/* Center Label */}
+                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Total</span>
+                    <span className="text-lg font-bold text-slate-900">{formatCurrency(grandTotal)}</span>
+                 </div>
+              </div>
+              <div className="mt-4 space-y-2">
+                 {chartData.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between text-xs">
+                       <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-slate-500 font-medium">{item.name}</span>
+                       </div>
+                       <span className="font-bold text-slate-700">{formatCurrency(item.value)}</span>
+                    </div>
+                 ))}
+              </div>
+           </div>
+
+           {/* Detailed Table */}
+           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+              <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-bold text-slate-900">Course Fees Breakdown</h3>
+                 </div>
+                 <span className="text-xs font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded-lg">
+                    {semesterCourses.length} Courses
+                 </span>
+              </div>
+              <div className="flex-1 overflow-x-auto">
+                 <table className="w-full text-left">
+                    <thead>
+                       <tr className="bg-slate-50/50">
+                          <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Course</th>
+                          <th className="px-6 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Credits</th>
+                          <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tuition</th>
+                          <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lab Fee</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                       {semesterCourses.map((course) => (
+                          <tr key={course.code} className="hover:bg-slate-50/30 transition-colors group">
+                             <td className="px-6 py-4">
+                                <p className="text-sm font-bold text-slate-800 group-hover:text-blue-900">{course.code}</p>
+                                <p className="text-[10px] font-medium text-slate-400 truncate max-w-[200px]">{course.name}</p>
+                             </td>
+                             <td className="px-6 py-4 text-center text-sm font-semibold text-slate-600">{course.credits}</td>
+                             <td className="px-6 py-4 text-right text-sm font-semibold text-slate-700">{formatCurrency(course.tuitionCost)}</td>
+                             <td className="px-6 py-4 text-right">
+                                {course.labFee ? (
+                                   <span className="text-xs font-bold text-amber-600">{formatCurrency(course.labFee)}</span>
+                                ) : (
+                                   <span className="text-xs text-slate-300">—</span>
+                                )}
+                             </td>
+                          </tr>
+                       ))}
+                    </tbody>
+                 </table>
+              </div>
+              <div className="p-6 bg-slate-50/50 border-t border-slate-100">
+                 <div className="flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                       <strong>Note:</strong> Estimates based on USC 2024 Bulletin. Lab fees vary by department. 
+                       Official clearance requires Bursar confirmation.
+                    </p>
+                 </div>
+              </div>
+           </div>
         </div>
 
-        {/* Payment Schedule */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-start gap-3 mb-4">
-            <Calculator className="w-5 h-5 text-[#003366] mt-0.5" />
-            <div>
-              <h3 className="text-lg text-gray-900 mb-1">Payment Plan Options</h3>
-              <p className="text-sm text-gray-600">Choose a payment schedule that works for you</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-gray-200 rounded-lg p-4 hover:border-[#003366] cursor-pointer transition-colors">
-              <p className="text-sm text-gray-600 mb-2">Full Payment</p>
-              <p className="text-xl text-gray-900 mb-1">{formatCurrency(grandTotal)}</p>
-              <p className="text-xs text-green-600">5% discount applied</p>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-4 hover:border-[#003366] cursor-pointer transition-colors">
-              <p className="text-sm text-gray-600 mb-2">2 Installments</p>
-              <p className="text-xl text-gray-900 mb-1">{formatCurrency(grandTotal / 2)}/month</p>
-              <p className="text-xs text-gray-500">No additional fees</p>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-4 hover:border-[#003366] cursor-pointer transition-colors">
-              <p className="text-sm text-gray-600 mb-2">4 Installments</p>
-              <p className="text-xl text-gray-900 mb-1">{formatCurrency(grandTotal / 4)}/month</p>
-              <p className="text-xs text-gray-500">2% processing fee</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Important Notice */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-          <div>
-            <p className="text-sm text-yellow-900">Important Notice</p>
-            <p className="text-sm text-yellow-700 mt-1">
-              Tuition rates are subject to change. Lab fees apply to courses with laboratory components. 
-              Additional fees may apply for special programs or resources. Contact the Bursar's Office for specific questions.
-            </p>
-          </div>
+        {/* Payment Options (Alternative Design) */}
+        <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden group">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-blue-500/20 transition-all duration-1000"></div>
+           <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+              <div>
+                 <h3 className="text-xl font-bold mb-2">Flexible Payment Plans</h3>
+                 <p className="text-sm text-slate-400 font-medium leading-relaxed">Choose a structured installment plan that fits your budget.</p>
+              </div>
+              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <div className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-5 transition-all cursor-pointer">
+                    <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Installments (4x)</span>
+                    <p className="text-xl font-bold mt-1">{formatCurrency(grandTotal / 4)}<span className="text-xs font-normal text-slate-400">/mo</span></p>
+                    <div className="flex items-center gap-2 mt-3">
+                       <div className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full w-1/4 bg-blue-500"></div>
+                       </div>
+                       <span className="text-[10px] font-bold">25% Start</span>
+                    </div>
+                 </div>
+                 <div className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-5 transition-all cursor-pointer">
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Deferred (GATE)</span>
+                    <p className="text-xl font-bold mt-1">{formatCurrency(grandTotal * 0.2)}<span className="text-xs font-normal text-slate-400"> (Fees Only)</span></p>
+                    <p className="text-[10px] text-slate-500 font-bold mt-3">Subject to GATE approval & status</p>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
     </div>
