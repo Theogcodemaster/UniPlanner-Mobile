@@ -4,6 +4,7 @@ export interface Course {
     credits: number;
     semester: number; // 1-8 (Year 1 Sem 1 = 1, Year 1 Sem 2 = 2, etc.)
     prerequisites: string[]; // List of Course IDs
+    emphasis?: string; // e.g., "Software Systems", "Information Systems"
 }
 
 // Mock CS sequence based on a typical US university curriculum

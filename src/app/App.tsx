@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { motion, AnimatePresence } from 'motion/react';
@@ -54,21 +54,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user?.email && !session.user.email.endsWith('@stu.usc.edu.tt')) {
-        await supabase.auth.signOut();
-        toast.error('Only @stu.usc.edu.tt emails are allowed.');
-        setSession(null);
-        setLoading(false);
-        return;
-      }
-      setSession(session);
-      if (session) loadProfile(session.user.id);
-      else setLoading(false);
-    });
+  const studentRef = useRef(student);
+  useEffect(() => { studentRef.current = student; }, [student]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+  useEffect(() => {
+    // Single consolidated auth listener - stable with empty deps
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change event:', event);
+
       if (session?.user?.email && !session.user.email.endsWith('@stu.usc.edu.tt')) {
         await supabase.auth.signOut();
         toast.error('Only @stu.usc.edu.tt emails are allowed.');
@@ -77,16 +70,24 @@ export default function App() {
         setLoading(false);
         return;
       }
+
       setSession(session);
-      if (session) loadProfile(session.user.id);
-      else {
+
+      if (session) {
+        // Use ref to check current student state without triggering re-subscription
+        if (!studentRef.current || studentRef.current.id !== session.user.id) {
+          loadProfile(session.user.id);
+        } else {
+          setLoading(false);
+        }
+      } else {
         setStudent(null);
         setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, []); // Stable listener
 
   async function loadProfile(userId: string) {
     setLoading(true);
@@ -117,7 +118,7 @@ export default function App() {
 
         <div className="flex-1 flex overflow-hidden p-4 md:p-6 gap-6 max-w-[1600px] mx-auto w-full">
           {/* Sidebar */}
-          <motion.aside 
+          <motion.aside
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             className="hidden lg:block w-80 flex-shrink-0"
@@ -130,7 +131,7 @@ export default function App() {
           {/* Main Content Area */}
           <main className="flex-1 overflow-hidden flex flex-col rounded-2xl bg-white border border-slate-200/60 shadow-sm shadow-slate-200/50 relative">
             <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none"></div>
-            
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
