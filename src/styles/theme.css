@@ -2,75 +2,78 @@
 
 :root {
   --font-size: 16px;
-  --background: #f8fafc; /* Slate-50 */
-  --foreground: #0f172a; /* Slate-900 */
+  --background: #FFFFFF; 
+  --foreground: #09090B; 
   
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #09090B;
   
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --popover-foreground: #09090B;
   
-  --primary: #003366; /* USC Blue */
+  --primary: #006633; /* Academic Green */
   --primary-foreground: #ffffff;
   
   --secondary: #FDB515; /* USC Gold */
-  --secondary-foreground: #003366;
+  --secondary-foreground: #006633;
   
-  --muted: #f1f5f9; /* Slate-100 */
-  --muted-foreground: #64748b; /* Slate-500 */
+  --muted: #F4F4F5; 
+  --muted-foreground: #71717A; 
   
-  --accent: #FDB515;
-  --accent-foreground: #003366;
+  --accent: #FDB515; 
+  --accent-foreground: #006633;
   
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --border: #e2e8f0; /* Slate-200 */
-  --input: #e2e8f0;
-  --ring: #003366;
+  --border: #E4E4E7; 
+  --input: #E4E4E7;
+  --ring: #006633;
   
-  --radius: 0.75rem; /* 12px */
+  --radius: 1rem; 
 
   /* Chart Colors */
-  --chart-1: #003366;
+  --chart-1: #006633;
   --chart-2: #FDB515;
-  --chart-3: #2563eb;
+  --chart-3: #10b981;
   --chart-4: #f59e0b;
-  --chart-5: #10b981;
+  --chart-5: #3b82f6;
 }
 
 .dark {
-  --background: #020617; /* Slate-950 */
-  --foreground: #f8fafc;
+  --background: #09090B; /* Zinc-950 */
+  --foreground: #FBFCFE;
   
-  --card: #1e293b; /* Slate-800 */
-  --card-foreground: #f8fafc;
+  --card: #18181B; /* Zinc-900 */
+  --card-foreground: #FBFCFE;
   
-  --popover: #1e293b;
-  --popover-foreground: #f8fafc;
+  --popover: #18181B;
+  --popover-foreground: #FBFCFE;
   
-  --primary: #3b82f6; /* Blue-500 */
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
   
-  --secondary: #FDB515;
-  --secondary-foreground: #003366;
+  --secondary: #B88A44;
+  --secondary-foreground: #ffffff;
   
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted: #27272A; /* Zinc-800 */
+  --muted-foreground: #A1A1AA; /* Zinc-400 */
   
-  --accent: #FDB515;
-  --accent-foreground: #003366;
+  --accent: #B88A44;
+  --accent-foreground: #ffffff;
   
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --border: #1e293b;
-  --input: #1e293b;
+  --border: #27272A;
+  --input: #27272A;
   --ring: #3b82f6;
 }
 
 @theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -106,6 +109,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
   }
 }

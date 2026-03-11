@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap');
+
+@layer base {
+  :root {
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  }
+}

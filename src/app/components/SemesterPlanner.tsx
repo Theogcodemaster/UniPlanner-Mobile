@@ -98,21 +98,21 @@ export function SemesterPlanner({ student }: SemesterPlannerProps) {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3">
-               <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#003366]">
+               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <LayoutDashboard className="w-5 h-5" />
                </div>
-               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Academic Map</h2>
+               <h2 className="text-3xl font-black text-zinc-900 tracking-tight font-serif">Academic Map</h2>
             </div>
-            <p className="text-sm font-medium text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-sm font-medium text-zinc-500 mt-1 max-w-2xl leading-relaxed">
               Plan your degree with intelligent prerequisite mapping and automated credit auditing.
             </p>
           </div>
           <div className="flex items-center gap-3">
              <div className="hidden sm:flex flex-col items-end mr-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Curriculum</span>
-                <span className="text-xs font-bold text-slate-900">CS Bulletin 2021-2025</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Active Curriculum</span>
+                <span className="text-xs font-bold text-zinc-900">CS Bulletin 2021-2025</span>
              </div>
-             <button className="flex items-center gap-2 px-6 py-3 bg-[#003366] text-white rounded-2xl shadow-xl shadow-blue-900/10 hover:bg-[#00254d] hover:scale-[1.02] active:scale-[0.98] transition-all font-bold text-sm">
+             <button className="flex items-center gap-2 px-6 py-3 bg-secondary text-primary rounded-2xl shadow-xl shadow-secondary/10 hover:shadow-secondary/20 transition-all font-bold text-sm squishy-button">
                <Plus className="w-4 h-4" />
                Add Course
              </button>
@@ -126,18 +126,19 @@ export function SemesterPlanner({ student }: SemesterPlannerProps) {
               initial={{ opacity: 0, height: 0, marginTop: 0 }}
               animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
               exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              className="bg-amber-50 border border-amber-100 rounded-3xl p-5 flex items-start gap-4 overflow-hidden"
+              className="bg-amber-50/50 border border-amber-100 rounded-3xl p-5 flex items-start gap-4 overflow-hidden relative"
             >
+              <div className="absolute inset-0 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:12px_12px] opacity-[0.03] pointer-events-none"></div>
               <div className="p-3 bg-amber-100/50 rounded-2xl shrink-0">
                  <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-amber-900 leading-none">Credit Restriction Active</p>
+              <div className="relative z-10">
+                <p className="text-sm font-bold text-amber-900 leading-none font-serif text-lg">Credit Restriction Active</p>
                 <p className="text-xs text-amber-700 mt-2 font-medium leading-relaxed">
                   Due to your academic standing ({student.gpa.toFixed(2)}), you are limited to 15 credits per semester. Overloads require Dean's approval.
                 </p>
               </div>
-              <button className="ml-auto text-amber-900/40 hover:text-amber-900">
+              <button className="ml-auto text-amber-900/40 hover:text-amber-900 squishy-button">
                  <Info className="w-4 h-4" />
               </button>
             </motion.div>
@@ -158,7 +159,7 @@ export function SemesterPlanner({ student }: SemesterPlannerProps) {
                 key={semester}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ delay: index * 0.05, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
                 className="h-full"
               >
                 <SemesterColumn
@@ -175,11 +176,11 @@ export function SemesterPlanner({ student }: SemesterPlannerProps) {
           })}
           
           {/* Add Semester Placeholder */}
-          <div className="w-80 flex-shrink-0 flex flex-col justify-center items-center border-2 border-dashed border-slate-200 rounded-3xl group hover:border-blue-400 hover:bg-slate-50 transition-all cursor-pointer">
-             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-2 group-hover:bg-blue-600 group-hover:text-white transition-all">
+          <div className="w-80 flex-shrink-0 flex flex-col justify-center items-center border-2 border-dashed border-zinc-200 rounded-3xl group hover:border-secondary/40 hover:bg-zinc-50 transition-all cursor-pointer squishy-button">
+             <div className="w-12 h-12 rounded-full bg-zinc-100 text-zinc-400 flex items-center justify-center mb-2 group-hover:bg-secondary group-hover:text-primary transition-all shadow-sm">
                 <Plus className="w-6 h-6" />
              </div>
-             <span className="text-sm font-bold text-slate-400 group-hover:text-blue-600">New Semester</span>
+             <span className="text-sm font-bold text-zinc-400 group-hover:text-secondary">New Semester</span>
           </div>
         </div>
       </div>

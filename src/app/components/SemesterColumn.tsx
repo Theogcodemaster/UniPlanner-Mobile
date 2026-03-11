@@ -62,72 +62,73 @@ export function SemesterColumn({
   const isUnderload = totalCredits > 0 && totalCredits < 12;
 
   // Modern Column Styling
-  let columnBg = 'bg-slate-50/50';
-  let headerColor = 'text-slate-600';
-  let badgeStyle = 'bg-slate-200 text-slate-700';
+  let columnBg = 'bg-zinc-50/50';
+  let headerColor = 'text-zinc-600';
+  let badgeStyle = 'bg-zinc-200 text-zinc-700';
   let borderColor = 'border-transparent';
 
   if (status === 'completed') {
-    columnBg = 'bg-slate-50/80';
-    badgeStyle = 'bg-emerald-100 text-emerald-700';
+    columnBg = 'bg-zinc-50/80';
+    badgeStyle = 'bg-emerald-100 text-emerald-800 font-bold';
   } else if (status === 'current') {
-    columnBg = 'bg-blue-50/30';
-    headerColor = 'text-blue-900';
-    badgeStyle = 'bg-blue-100 text-blue-700';
-    borderColor = 'border-blue-200';
+    columnBg = 'bg-primary/5';
+    headerColor = 'text-primary';
+    badgeStyle = 'bg-primary text-white font-bold';
+    borderColor = 'border-primary/20';
   }
 
   if (isOver && canDrop) {
-    columnBg = 'bg-blue-50 border-2 border-dashed border-blue-300';
+    columnBg = 'bg-primary/10 border-2 border-dashed border-primary/30';
   }
 
   return (
     <div
       ref={drop}
-      className={`w-80 flex-shrink-0 flex flex-col rounded-2xl transition-all duration-200 group ${columnBg} ${borderColor} ${status === 'current' ? 'border' : ''}`}
+      className={`w-84 flex-shrink-0 flex flex-col rounded-3xl transition-all duration-300 group ${columnBg} ${borderColor} ${status === 'current' ? 'border-2 shadow-lg shadow-primary/5' : 'border border-zinc-200/50'}`}
     >
       {/* Column Header */}
-      <div className="px-5 py-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="px-6 py-5">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h3 className={`font-bold ${headerColor}`}>{semester}</h3>
+            <h3 className={`text-lg font-black tracking-tight font-serif ${headerColor}`}>{semester}</h3>
           </div>
-          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${badgeStyle}`}>
-            {status === 'completed' ? 'Done' : status === 'current' ? 'Current' : 'Planned'}
+          <span className={`px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-widest ${badgeStyle}`}>
+            {status === 'completed' ? 'Done' : status === 'current' ? 'Active' : 'Planned'}
           </span>
         </div>
         
-        <div className="flex items-center justify-between text-xs font-medium">
-          <span className="text-slate-400">Credits</span>
+        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+          <span className="text-zinc-400">Semester Load</span>
           <span className={`${
-            isOverload ? 'text-red-600' : isUnderload ? 'text-amber-600' : 'text-slate-700'
+            isOverload ? 'text-red-600' : isUnderload ? 'text-secondary' : 'text-zinc-700'
           }`}>
-            {totalCredits} / 18
+            {totalCredits} <span className="text-zinc-400 font-medium">/ 18 Credits</span>
           </span>
         </div>
 
         {/* Progress Bar for Credits */}
-        <div className="mt-2 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+        <div className="mt-3 h-2 w-full bg-zinc-200/50 rounded-full overflow-hidden p-0.5">
            <div 
-             className={`h-full rounded-full ${isOverload ? 'bg-red-500' : isUnderload ? 'bg-amber-400' : 'bg-emerald-500'}`} 
+             className={`h-full rounded-full transition-all duration-500 ${isOverload ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : isUnderload ? 'bg-secondary' : 'bg-primary shadow-[0_0_8px_rgba(0,102,51,0.3)]'}`} 
              style={{ width: `${Math.min((totalCredits / 18) * 100, 100)}%` }}
            />
         </div>
 
         {creditWarning && (
-          <div className="mt-3 bg-amber-50/50 border border-amber-100 rounded-lg p-2 flex items-start gap-2">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
-            <p className="text-[10px] text-amber-800 leading-tight">{creditWarning}</p>
+          <div className="mt-4 bg-amber-50/80 border border-amber-100 rounded-2xl p-3 flex items-start gap-3 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:8px_8px] opacity-[0.05] pointer-events-none"></div>
+            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-900 font-medium leading-tight relative z-10">{creditWarning}</p>
           </div>
         )}
       </div>
 
       {/* Course List Area */}
-      <div className="flex-1 px-3 pb-3 space-y-3 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 px-4 pb-4 space-y-4 overflow-y-auto custom-scrollbar">
         {courses.length === 0 ? (
-          <div className="h-40 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl m-2">
-            <Calendar className="w-8 h-8 opacity-20 mb-2" />
-            <span className="text-xs font-medium">No courses</span>
+          <div className="h-48 flex flex-col items-center justify-center text-zinc-300 border-2 border-dashed border-zinc-200 rounded-3xl m-2 bg-white/50">
+            <Calendar className="w-10 h-10 opacity-20 mb-3" />
+            <span className="text-xs font-bold uppercase tracking-widest">No Courses Planned</span>
           </div>
         ) : (
           courses.map((course) => (

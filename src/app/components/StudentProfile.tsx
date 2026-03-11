@@ -15,8 +15,8 @@ interface StudentProfileProps {
 export function StudentProfile({ student }: StudentProfileProps) {
   const progressPercentage = (student.completedCredits / student.totalCredits) * 100;
   
-  const gpaColor = student.gpa >= 3.5 ? 'text-emerald-600' : student.gpa >= 3.0 ? 'text-blue-600' : 'text-amber-600';
-  const gpaBg = student.gpa >= 3.5 ? 'bg-emerald-50' : student.gpa >= 3.0 ? 'bg-blue-50' : 'bg-amber-50';
+  const gpaColor = student.gpa >= 3.5 ? 'text-emerald-600' : student.gpa >= 3.0 ? 'text-primary' : 'text-amber-600';
+  const gpaBg = student.gpa >= 3.5 ? 'bg-emerald-50' : student.gpa >= 3.0 ? 'bg-primary/5' : 'bg-amber-50';
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -29,8 +29,8 @@ export function StudentProfile({ student }: StudentProfileProps) {
   });
 
   const chartData = [
-    { name: 'Completed', value: student.completedCredits, color: '#003366' },
-    { name: 'Remaining', value: student.totalCredits - student.completedCredits, color: '#f1f5f9' },
+    { name: 'Completed', value: student.completedCredits, color: '#006633' },
+    { name: 'Remaining', value: student.totalCredits - student.completedCredits, color: '#F4F4F5' },
   ];
 
   const handleSave = async () => {
@@ -51,76 +51,78 @@ export function StudentProfile({ student }: StudentProfileProps) {
   };
 
   return (
-    <div className="p-8 space-y-10">
+    <div className="p-8 space-y-12">
       {/* Profile Info */}
-      <div className="flex flex-col items-center text-center space-y-4">
+      <div className="flex flex-col items-center text-center space-y-5">
         <div className="relative group">
-           <div className="w-24 h-24 rounded-3xl bg-slate-900 flex items-center justify-center text-white text-3xl font-bold shadow-2xl shadow-slate-900/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+           <div className="w-28 h-28 rounded-[2rem] bg-primary flex items-center justify-center text-white text-4xl font-bold shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-700 squishy-button font-serif">
               {student.name.split(' ').map(n => n[0]).join('')}
            </div>
            <Dialog open={isEditing} onOpenChange={setIsEditing}>
              <DialogTrigger asChild>
-                <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-xl shadow-lg border border-slate-100 text-slate-400 hover:text-blue-600 hover:scale-110 transition-all">
+                <button className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-2xl shadow-xl border border-zinc-100 text-zinc-400 hover:text-primary hover:scale-110 transition-all squishy-button">
                    <Pencil className="w-4 h-4" />
                 </button>
              </DialogTrigger>
-             <DialogContent>
-                <DialogHeader><DialogTitle>Edit Profile</DialogTitle></DialogHeader>
+             <DialogContent className="rounded-3xl">
+                <DialogHeader><DialogTitle className="font-serif text-2xl">Edit Profile</DialogTitle></DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
-                    <Label>Full Name</Label>
-                    <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Full Name</Label>
+                    <Input className="rounded-xl border-zinc-200" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <Label>GPA</Label>
-                    <Input type="number" step="0.01" value={editForm.gpa} onChange={(e) => setEditForm({ ...editForm, gpa: parseFloat(e.target.value) })} />
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">GPA</Label>
+                    <Input className="rounded-xl border-zinc-200" type="number" step="0.01" value={editForm.gpa} onChange={(e) => setEditForm({ ...editForm, gpa: parseFloat(e.target.value) })} />
                   </div>
-                  <Button onClick={handleSave} className="w-full">Save Changes</Button>
+                  <Button onClick={handleSave} className="w-full rounded-xl bg-primary hover:bg-primary/90 squishy-button">Save Changes</Button>
                 </div>
              </DialogContent>
            </Dialog>
         </div>
         <div>
-           <h2 className="text-xl font-bold text-slate-900 tracking-tight">{student.name}</h2>
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{student.student_id}</p>
+           <h2 className="text-2xl font-black text-zinc-900 tracking-tight font-serif">{student.name}</h2>
+           <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mt-2">{student.student_id}</p>
         </div>
       </div>
 
       {/* GPA Card */}
-      <div className={`rounded-3xl p-6 ${gpaBg} border border-black/5 relative overflow-hidden`}>
+      <div className={`rounded-[2rem] p-7 ${gpaBg} border border-black/5 relative overflow-hidden group hover:shadow-xl transition-all duration-500`}>
+         <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:12px_12px] opacity-[0.03] pointer-events-none"></div>
          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-               <span className={`text-[10px] font-bold uppercase tracking-widest ${gpaColor} opacity-70`}>Academic GPA</span>
+            <div className="flex items-center justify-between mb-2">
+               <span className={`text-[10px] font-black uppercase tracking-widest ${gpaColor} opacity-70`}>Academic GPA</span>
                <TrendingUp className={`w-4 h-4 ${gpaColor}`} />
             </div>
-            <div className="flex items-baseline gap-2">
-               <span className={`text-4xl font-black ${gpaColor}`}>{student.gpa.toFixed(2)}</span>
-               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/50 border border-black/5 ${gpaColor}`}>
-                  {student.gpa >= 3.5 ? "Honor's List" : "In Good Standing"}
+            <div className="flex items-baseline gap-3">
+               <span className={`text-5xl font-black ${gpaColor} font-serif`}>{student.gpa.toFixed(2)}</span>
+               <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg bg-white/60 border border-black/5 ${gpaColor} uppercase tracking-widest`}>
+                  {student.gpa >= 3.5 ? "Honor's List" : "Good Standing"}
                </span>
             </div>
          </div>
-         <div className="absolute top-0 right-0 p-4 opacity-5">
-            <Award className="w-16 h-16" />
+         <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
+            <Award className="w-24 h-24" />
          </div>
       </div>
 
       {/* Progress Mini Chart */}
-      <div className="space-y-4">
+      <div className="space-y-6">
          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Degree Completion</h3>
-            <span className="text-xs font-bold text-slate-900">{progressPercentage.toFixed(0)}%</span>
+            <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Degree Progress</h3>
+            <span className="text-xs font-black text-zinc-900 font-serif text-lg">{progressPercentage.toFixed(0)}%</span>
          </div>
-         <div className="h-32 w-full relative">
+         <div className="h-40 w-full relative">
             <ResponsiveContainer width="100%" height="100%">
                <PieChart>
                   <Pie
                      data={chartData}
-                     innerRadius={35}
-                     outerRadius={50}
+                     innerRadius={45}
+                     outerRadius={65}
                      startAngle={90}
                      endAngle={450}
                      dataKey="value"
+                     paddingAngle={2}
                   >
                      {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
@@ -129,51 +131,52 @@ export function StudentProfile({ student }: StudentProfileProps) {
                </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-               <span className="text-lg font-black text-[#003366] leading-none">{student.completedCredits}</span>
-               <span className="text-[8px] font-bold text-slate-400 uppercase">Credits</span>
+               <span className="text-2xl font-black text-primary leading-none font-serif">{student.completedCredits}</span>
+               <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-1">Credits</span>
             </div>
          </div>
-         <p className="text-[10px] text-center text-slate-500 font-medium">
-            {student.totalCredits - student.completedCredits} credits remaining for graduation
+         <p className="text-[10px] text-center text-zinc-500 font-bold uppercase tracking-widest">
+            {student.totalCredits - student.completedCredits} credits remaining
          </p>
       </div>
 
       {/* Details */}
-      <div className="space-y-5 pt-4 border-t border-slate-100">
-         <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-               <BookOpen className="w-5 h-5" />
+      <div className="space-y-6 pt-6 border-t border-zinc-100">
+         <div className="flex items-start gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-50 text-primary flex items-center justify-center shrink-0 shadow-sm border border-zinc-200/50">
+               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Major</p>
-               <p className="text-sm font-bold text-slate-900 leading-snug mt-0.5">{student.major}</p>
+               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Major</p>
+               <p className="text-base font-bold text-zinc-900 leading-snug mt-1 font-serif">{student.major}</p>
             </div>
          </div>
-         <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-               <GraduationCap className="w-5 h-5" />
+         <div className="flex items-start gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-50 text-secondary flex items-center justify-center shrink-0 shadow-sm border border-zinc-200/50">
+               <GraduationCap className="w-6 h-6" />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expected Graduation</p>
-               <p className="text-sm font-bold text-slate-900 mt-0.5">{student.expected_graduation_date}</p>
+               <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Expected Graduation</p>
+               <p className="text-base font-bold text-zinc-900 mt-1 font-serif">{student.expected_graduation_date}</p>
             </div>
          </div>
       </div>
 
       {/* Notices */}
-      <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden group">
-         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-700">
-            <ShieldCheck className="w-12 h-12" />
+      <div className="bg-zinc-900 rounded-[2rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-zinc-900/20">
+         <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.03] pointer-events-none"></div>
+         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-125 transition-transform duration-1000">
+            <ShieldCheck className="w-16 h-16" />
          </div>
-         <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3">Recent Notices</h4>
-         <div className="space-y-3 relative z-10">
-            <div className="flex gap-2">
-               <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-               <p className="text-[11px] font-medium text-slate-300">Bulletin 2021-2025 verified.</p>
+         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-5">Institutional Notices</h4>
+         <div className="space-y-4 relative z-10">
+            <div className="flex gap-3">
+               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+               <p className="text-[12px] font-medium text-zinc-300">Curriculum Bulletin 2021-2025 verified.</p>
             </div>
-            <div className="flex gap-2">
-               <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-               <p className="text-[11px] font-medium text-slate-300">Fall Registration opens March 15.</p>
+            <div className="flex gap-3">
+               <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-2 shrink-0 shadow-[0_0_8px_rgba(253,181,21,0.5)]" />
+               <p className="text-[12px] font-medium text-zinc-300">Fall Registration opens March 15.</p>
             </div>
          </div>
       </div>

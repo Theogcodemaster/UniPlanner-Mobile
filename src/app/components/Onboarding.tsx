@@ -161,116 +161,120 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const stepIndex = step === 'type-selection' ? 1 : step === 'basic' ? 2 : step === 'academic' ? 3 : step === 'verification' ? 4 : 5;
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-50/50 p-6">
-            <Card className="w-full max-w-xl shadow-2xl border-slate-200/60 overflow-hidden">
+        <div className="flex min-h-screen items-center justify-center bg-white p-6 relative overflow-hidden">
+            {/* Grain Overlay */}
+            <div className="grain opacity-[0.03]"></div>
+
+            <Card className="w-full max-w-xl shadow-2xl border-zinc-200/60 overflow-hidden rounded-[2.5rem]">
                 {/* Progress Header */}
-                <div className="bg-slate-900 px-8 py-4 flex justify-between items-center text-white">
-                   <div className="flex items-center gap-3">
-                      <GraduationCap className="w-6 h-6 text-blue-400" />
-                      <span className="font-bold tracking-tight">Setup Profile</span>
+                <div className="bg-primary px-8 py-6 flex justify-between items-center text-white relative overflow-hidden">
+                   <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.05] pointer-events-none"></div>
+                   <div className="flex items-center gap-3 relative z-10">
+                      <GraduationCap className="w-6 h-6 text-secondary" />
+                      <span className="font-black tracking-tight uppercase text-xs">Student Enrollment Node</span>
                    </div>
-                   <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-400">Step {stepIndex} of 5</span>
-                      <div className="flex gap-1">
+                   <div className="flex items-center gap-4 relative z-10">
+                      <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Protocol {stepIndex}/5</span>
+                      <div className="flex gap-1.5">
                          {[1,2,3,4,5].map(i => (
-                           <div key={i} className={`h-1.5 w-4 rounded-full ${i <= stepIndex ? 'bg-blue-500' : 'bg-slate-700'}`} />
+                           <div key={i} className={`h-1.5 w-4 rounded-full transition-all duration-500 ${i <= stepIndex ? 'bg-secondary' : 'bg-white/20'}`} />
                          ))}
                       </div>
                    </div>
                 </div>
 
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-6 pt-8">
                     <div className="flex justify-between items-start">
                         <div>
-                           <CardTitle className="text-2xl">
-                             {step === 'type-selection' ? 'Choose Your Journey' : 
-                              step === 'basic' ? 'Personal Info' :
-                              step === 'academic' ? 'Academic Details' :
-                              step === 'verification' ? 'AI Verification' : 'Student Lifestyle'}
+                           <CardTitle className="text-3xl font-black font-serif tracking-tight">
+                             {step === 'type-selection' ? 'Choose Journey' : 
+                              step === 'basic' ? 'Personal Identity' :
+                              step === 'academic' ? 'Academic Specs' :
+                              step === 'verification' ? 'AI Verification' : 'Lifestyle Config'}
                            </CardTitle>
-                           <CardDescription className="mt-1">
-                              {step === 'type-selection' ? 'Select your enrollment category to customize your experience.' : 'Help us personalize your degree planner.'}
+                           <CardDescription className="mt-2 font-bold text-zinc-400 uppercase tracking-widest text-[10px]">
+                              {step === 'type-selection' ? 'Initialize your institutional category.' : 'Configure your academic environment parameters.'}
                            </CardDescription>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-400 hover:text-red-500 transition-colors">
+                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-zinc-400 hover:text-red-500 transition-colors squishy-button">
                             <LogOut className="w-4 h-4 mr-2" />
-                            Exit
+                            <span className="font-black uppercase tracking-widest text-[10px]">Abort</span>
                         </Button>
                     </div>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-8">
                     {step === 'type-selection' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div
-                                className={`cursor-pointer border-2 rounded-2xl p-6 transition-all duration-300 group ${formData.studentType === 'local' ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'}`}
+                                className={`cursor-pointer border-2 rounded-[2rem] p-8 transition-all duration-500 group relative overflow-hidden ${formData.studentType === 'local' ? 'border-primary bg-primary/5 shadow-xl shadow-primary/5' : 'border-zinc-100 bg-white hover:border-zinc-200'}`}
                                 onClick={() => handleSelectChange('studentType', 'local')}
                             >
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${formData.studentType === 'local' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-blue-600'}`}>
-                                   <Check className="w-6 h-6" />
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${formData.studentType === 'local' ? 'bg-primary text-white rotate-3' : 'bg-zinc-100 text-zinc-400 group-hover:bg-primary/10 group-hover:text-primary'}`}>
+                                   <Check className="w-7 h-7" />
                                 </div>
-                                <h4 className="text-lg font-bold text-slate-900">Local</h4>
-                                <p className="text-sm text-slate-500 mt-1">Studying in Trinidad & Tobago.</p>
+                                <h4 className="text-xl font-black text-zinc-900 font-serif">Regional</h4>
+                                <p className="text-xs text-zinc-500 mt-2 font-medium leading-relaxed">Studying within the Caribbean region.</p>
                             </div>
                             <div
-                                className={`cursor-pointer border-2 rounded-2xl p-6 transition-all duration-300 group ${formData.studentType === 'international' ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50'}`}
+                                className={`cursor-pointer border-2 rounded-[2rem] p-8 transition-all duration-500 group relative overflow-hidden ${formData.studentType === 'international' ? 'border-primary bg-primary/5 shadow-xl shadow-primary/5' : 'border-zinc-100 bg-white hover:border-zinc-200'}`}
                                 onClick={() => handleSelectChange('studentType', 'international')}
                             >
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${formData.studentType === 'international' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-blue-600'}`}>
-                                   <Sparkles className="w-6 h-6" />
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${formData.studentType === 'international' ? 'bg-primary text-white rotate-3' : 'bg-zinc-100 text-zinc-400 group-hover:bg-primary/10 group-hover:text-primary'}`}>
+                                   <Sparkles className="w-7 h-7" />
                                 </div>
-                                <h4 className="text-lg font-bold text-slate-900">International</h4>
-                                <p className="text-sm text-slate-500 mt-1">Studying from abroad.</p>
+                                <h4 className="text-xl font-black text-zinc-900 font-serif">Global</h4>
+                                <p className="text-xs text-zinc-500 mt-2 font-medium leading-relaxed">Studying from international territories.</p>
                             </div>
                         </div>
                     )}
 
                     {step === 'basic' && (
-                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label className="font-semibold text-slate-700 ml-1">First Name</Label>
-                                    <Input id="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="Dwayne" />
+                                    <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Given Name</Label>
+                                    <Input id="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="Dwayne" className="rounded-2xl" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="font-semibold text-slate-700 ml-1">Last Name</Label>
-                                    <Input id="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Headley" />
+                                    <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Surname</Label>
+                                    <Input id="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Headley" className="rounded-2xl" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="font-semibold text-slate-700 ml-1">Student ID (10 Digits)</Label>
-                                <Input id="studentId" value={formData.studentId} onChange={handleInputChange} placeholder="2021000000" maxLength={10} />
+                                <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Institutional ID (10 Digits)</Label>
+                                <Input id="studentId" value={formData.studentId} onChange={handleInputChange} placeholder="2021000000" maxLength={10} className="rounded-2xl" />
                             </div>
                         </div>
                     )}
 
                     {step === 'academic' && (
-                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
                             <div className="space-y-2">
-                                <Label className="font-semibold text-slate-700 ml-1">Degree Program</Label>
-                                <Input id="major" value={formData.major} onChange={handleInputChange} placeholder="BSc Computer Science" />
+                                <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Academic Major</Label>
+                                <Input id="major" value={formData.major} onChange={handleInputChange} placeholder="BSc Computer Science" className="rounded-2xl" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="font-semibold text-slate-700 ml-1">Exp. Graduation</Label>
-                                <Input id="graduationDate" type="month" value={formData.graduationDate} onChange={handleInputChange} />
+                                <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Target Graduation</Label>
+                                <Input id="graduationDate" type="month" value={formData.graduationDate} onChange={handleInputChange} className="rounded-2xl" />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                                <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${files.bulletin ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'}`}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-zinc-100">
+                                <div className={`relative border-2 border-dashed rounded-[1.5rem] p-6 text-center transition-all ${files.bulletin ? 'border-emerald-500 bg-emerald-50/50' : 'border-zinc-200 hover:border-primary hover:bg-zinc-50'}`}>
                                    <input id="bulletin-upload" type="file" accept=".pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileChange(e, 'bulletin')} />
-                                   <div className="flex flex-col items-center gap-2">
-                                      <Upload className={`w-8 h-8 ${files.bulletin ? 'text-emerald-500' : 'text-slate-300'}`} />
-                                      <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{files.bulletin ? 'Bulletin Uploaded' : 'Upload Bulletin'}</span>
-                                      {files.bulletin && <p className="text-[10px] text-emerald-600 truncate max-w-full font-medium">{files.bulletin.name}</p>}
+                                   <div className="flex flex-col items-center gap-3">
+                                      <Upload className={`w-8 h-8 ${files.bulletin ? 'text-emerald-500' : 'text-zinc-300'}`} />
+                                      <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">{files.bulletin ? 'Bulletin Synced' : 'Sync Bulletin'}</span>
+                                      {files.bulletin && <p className="text-[10px] text-emerald-600 truncate max-w-full font-bold uppercase mt-1">{files.bulletin.name}</p>}
                                    </div>
                                 </div>
 
-                                <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${files.transcript ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'}`}>
+                                <div className={`relative border-2 border-dashed rounded-[1.5rem] p-6 text-center transition-all ${files.transcript ? 'border-primary bg-primary/5' : 'border-zinc-200 hover:border-primary hover:bg-zinc-50'}`}>
                                    <input id="transcript-upload" type="file" accept=".pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileChange(e, 'transcript')} />
-                                   <div className="flex flex-col items-center gap-2">
-                                      <FileText className={`w-8 h-8 ${files.transcript ? 'text-blue-500' : 'text-slate-300'}`} />
-                                      <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{files.transcript ? 'Transcript Uploaded' : 'Upload Transcript'}</span>
-                                      {files.transcript && <p className="text-[10px] text-blue-600 truncate max-w-full font-medium">{files.transcript.name}</p>}
+                                   <div className="flex flex-col items-center gap-3">
+                                      <FileText className={`w-8 h-8 ${files.transcript ? 'text-primary' : 'text-zinc-300'}`} />
+                                      <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">{files.transcript ? 'Grades Synced' : 'Sync Transcript'}</span>
+                                      {files.transcript && <p className="text-[10px] text-primary truncate max-w-full font-bold uppercase mt-1">{files.transcript.name}</p>}
                                    </div>
                                 </div>
                             </div>
@@ -278,27 +282,27 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     )}
 
                     {step === 'verification' && (
-                        <div className="text-center py-8 space-y-4 animate-in zoom-in-95">
+                        <div className="text-center py-10 space-y-6 animate-in zoom-in-95">
                             {verifying ? (
-                                <div className="space-y-6">
-                                    <div className="relative w-20 h-20 mx-auto">
-                                       <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-                                       <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-                                       <Loader2 className="absolute inset-0 m-auto w-10 h-10 text-blue-600" />
+                                <div className="space-y-8">
+                                    <div className="relative w-24 h-24 mx-auto">
+                                       <div className="absolute inset-0 border-4 border-primary/10 rounded-full"></div>
+                                       <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
+                                       <Loader2 className="absolute inset-0 m-auto w-12 h-12 text-primary" />
                                     </div>
                                     <div>
-                                       <h3 className="text-xl font-bold text-slate-900 tracking-tight">AI Analysis in Progress</h3>
-                                       <p className="text-sm text-slate-500 mt-1 font-medium">Scanning transcript for GPA and course history...</p>
+                                       <h3 className="text-2xl font-black text-zinc-900 tracking-tight font-serif">AI Synthesis...</h3>
+                                       <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.3em] mt-2">Parsing institutional grade history</p>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="space-y-6">
-                                    <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${verificationResult?.match ? 'bg-emerald-100 text-emerald-600 shadow-emerald-900/10' : 'bg-amber-100 text-amber-600 shadow-amber-900/10'}`}>
-                                        {verificationResult?.match ? <ShieldCheck className="h-12 w-12" /> : <AlertCircle className="h-12 w-12" />}
+                                <div className="space-y-8">
+                                    <div className={`w-24 h-24 mx-auto rounded-3xl flex items-center justify-center shadow-2xl rotate-3 ${verificationResult?.match ? 'bg-emerald-100 text-emerald-600 shadow-emerald-900/10' : 'bg-secondary/10 text-secondary shadow-secondary/10'}`}>
+                                        {verificationResult?.match ? <ShieldCheck className="h-14 w-14" /> : <AlertCircle className="h-14 w-14" />}
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-slate-900">{verificationResult?.match ? "Data Verified Successfully" : "Review Required"}</h3>
-                                        <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto font-medium">{verificationResult?.message}</p>
+                                        <h3 className="text-2xl font-black text-zinc-900 font-serif">{verificationResult?.match ? "Stream Verified" : "Analysis Warning"}</h3>
+                                        <p className="text-[10px] text-zinc-500 mt-3 max-w-xs mx-auto font-black uppercase tracking-widest leading-relaxed">{verificationResult?.message}</p>
                                     </div>
                                 </div>
                             )}
@@ -306,30 +310,30 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     )}
 
                     {step === 'lifestyle' && (
-                        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-                            <div className="space-y-2">
-                                <Label className="font-semibold text-slate-700 ml-1">Housing</Label>
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                            <div className="space-y-3">
+                                <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Institutional Housing</Label>
                                 <Select onValueChange={(val) => handleSelectChange('housingType', val)} defaultValue={formData.housingType}>
-                                    <SelectTrigger className="h-11 rounded-xl">
+                                    <SelectTrigger className="h-14 rounded-2xl border-zinc-200">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="dorm">On-Campus Dorm</SelectItem>
-                                        <SelectItem value="renting">Off-Campus Renting</SelectItem>
-                                        <SelectItem value="other">Commuter / Home</SelectItem>
+                                    <SelectContent className="rounded-2xl">
+                                        <SelectItem value="dorm">On-Campus Residency</SelectItem>
+                                        <SelectItem value="renting">Off-Campus Residency</SelectItem>
+                                        <SelectItem value="other">Institutional Commuter</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="font-semibold text-slate-700 ml-1">Meal Plan</Label>
+                            <div className="space-y-3">
+                                <Label className="font-black text-zinc-500 uppercase tracking-widest text-[10px] ml-1">Subsistence Config</Label>
                                 <Select onValueChange={(val) => handleSelectChange('mealPlan', val)} defaultValue={formData.mealPlan}>
-                                    <SelectTrigger className="h-11 rounded-xl">
+                                    <SelectTrigger className="h-14 rounded-2xl border-zinc-200">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">None</SelectItem>
-                                        <SelectItem value="two_meal">2 Meals/Day</SelectItem>
-                                        <SelectItem value="three_meal">3 Meals/Day</SelectItem>
+                                    <SelectContent className="rounded-2xl">
+                                        <SelectItem value="none">Zero-Plan Node</SelectItem>
+                                        <SelectItem value="two_meal">Standard (2 Meals)</SelectItem>
+                                        <SelectItem value="three_meal">Premium (3 Meals)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -337,21 +341,21 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     )}
                 </CardContent>
 
-                <CardFooter className="flex justify-between border-t border-slate-100 pt-6">
+                <CardFooter className="flex justify-between border-t border-zinc-100 pt-8 pb-8 px-8">
                     {step !== 'type-selection' && step !== 'verification' ? (
                         <Button variant="outline" onClick={() => {
                             if (step === 'basic') setStep('type-selection');
                             else if (step === 'academic') setStep('basic');
                             else if (step === 'lifestyle') setStep(files.transcript ? 'verification' : 'academic');
-                        }}>
+                        }} className="rounded-2xl border-zinc-200 font-black uppercase tracking-widest text-[10px] h-14 px-8 squishy-button">
                             Back
                         </Button>
                     ) : <div />}
 
-                    <Button onClick={step === 'lifestyle' ? handleSubmit : nextStep} disabled={verifying || loading} className="min-w-[140px]">
-                        {loading || verifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 
-                         (step === 'lifestyle' ? 'Launch Dashboard' : (step === 'verification' ? 'Continue' : 'Next Step'))}
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button onClick={step === 'lifestyle' ? handleSubmit : nextStep} disabled={verifying || loading} className="min-w-[180px] h-14 rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 hover:brightness-110 squishy-button">
+                        {loading || verifying ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 
+                         <span className="font-black uppercase tracking-widest text-[10px]">{step === 'lifestyle' ? 'Commit to Node' : (step === 'verification' ? 'Initialize' : 'Next Protocol')}</span>}
+                        <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                 </CardFooter>
             </Card>

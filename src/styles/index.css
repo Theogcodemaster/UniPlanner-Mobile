@@ -4,24 +4,63 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-background text-foreground;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(215, 98%, 61%, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(45, 98%, 61%, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(150, 98%, 20%, 0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(45, 98%, 61%, 0.03) 0px, transparent 50%);
     background-attachment: fixed;
+  }
+
+  /* Premium Selection Color */
+  ::selection {
+    @apply bg-primary/10 text-primary;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-zinc-200 rounded-full hover:bg-zinc-300 transition-colors;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-sm;
   }
   
   .glass-dark {
-    @apply bg-slate-900/80 backdrop-blur-md border border-white/10 shadow-sm;
+    @apply bg-zinc-950/70 backdrop-blur-xl border border-white/5 shadow-sm;
   }
 
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+  .premium-card {
+    @apply bg-white border border-zinc-200/60 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07),0_4px_25px_-2px_rgba(0,0,0,0.04)] rounded-2xl;
   }
+
+  .grain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .squishy-button {
+    @apply transition-all duration-200 active:scale-95 hover:brightness-105 active:brightness-95;
+  }
+}
+
+/* Institutional Watermark Background */
+.watermark {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 10L10 30V70L50 90L90 70V30L50 10Z' stroke='%23FDB515' stroke-opacity='0.04' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }

@@ -113,23 +113,26 @@ export default function App() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="h-screen flex flex-col bg-slate-50/50 selection:bg-blue-100 selection:text-blue-900">
+      <div className="h-screen flex flex-col bg-background selection:bg-primary/10 selection:text-primary relative overflow-hidden">
+        {/* Grain Overlay */}
+        <div className="grain opacity-[0.03]"></div>
+        
         <Navigation activeView={activeView} onViewChange={setActiveView} />
 
-        <div className="flex-1 flex overflow-hidden p-4 md:p-6 gap-6 max-w-[1600px] mx-auto w-full">
+        <div className="flex-1 flex overflow-hidden p-4 md:p-6 gap-6 max-w-[1600px] mx-auto w-full relative z-10">
           {/* Sidebar */}
           <motion.aside
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             className="hidden lg:block w-80 flex-shrink-0"
           >
-            <div className="h-full overflow-y-auto rounded-2xl bg-white border border-slate-200/60 shadow-sm shadow-slate-200/50">
+            <div className="h-full overflow-y-auto premium-card">
               <StudentProfile student={student || defaultStudent} />
             </div>
           </motion.aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 overflow-hidden flex flex-col rounded-2xl bg-white border border-slate-200/60 shadow-sm shadow-slate-200/50 relative">
+          <main className="flex-1 overflow-hidden flex flex-col premium-card relative watermark">
             <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-10 pointer-events-none"></div>
 
             <AnimatePresence mode="wait">
@@ -138,7 +141,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 className="relative z-10 h-full overflow-y-auto custom-scrollbar"
               >
                 {activeView === 'planner' && <SemesterPlanner student={student || defaultStudent} />}
